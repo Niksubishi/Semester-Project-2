@@ -1,13 +1,81 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="src/assets/images/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
+    <title>YoBid - Online Auction House</title>
+    <script type="module" src="src/js/main.js"></script>
+    <link rel="stylesheet" href="src/style.css" />
   </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
+  <body class="bg-brand-body">
+    <div id="app">
+      <nav
+        class="bg-brand-nav h-auto md:h-[73px] shadow-md flex items-center py-4 md:py-0"
+      >
+        <div class="max-w-7xl mx-auto px-8 w-full">
+          <div
+            class="flex flex-col md:flex-row justify-between items-center w-full gap-4 md:gap-0"
+          >
+            <a href="/" class="flex items-center justify-center -ml-4">
+              <img
+                src="src/assets/images/logo.png"
+                alt="YoBid Logo"
+                class="h-12 md:h-14"
+              />
+            </a>
+
+            <!-- Nav Links -->
+            <div class="flex items-center space-x-6">
+              <div data-auth="logged-out">
+                <a href="/" class="text-brand-text hover:text-opacity-80"
+                  >Home</a
+                >
+                <a
+                  href="src/pages/login/index.html"
+                  class="text-brand-text hover:text-opacity-80 ml-6"
+                  >Login</a
+                >
+                <a
+                  href="src/pages/register/index.html"
+                  class="text-brand-text hover:text-opacity-80 ml-6"
+                  >Register</a
+                >
+              </div>
+
+              <!-- Logged in state -->
+              <div data-auth="logged-in" class="hidden">
+                <a href="/" class="text-brand-text hover:text-opacity-80"
+                  >Home</a
+                >
+                <a
+                  href="src/pages/create/index.html"
+                  class="text-brand-text hover:text-opacity-80 ml-6 font-bold"
+                  >Sell</a
+                >
+                <a
+                  href="src/pages/profile/index.html"
+                  class="text-brand-text hover:text-opacity-80 ml-6"
+                  >Profile</a
+                >
+                <span class="text-brand-text ml-6"
+                  >Credits: <span data-credits>0</span></span
+                >
+                <button
+                  class="text-brand-text hover:text-opacity-80 ml-6"
+                  data-logout
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <main>
+        <!-- Main content will go here -->
+      </main>
+    </div>
   </body>
 </html>
