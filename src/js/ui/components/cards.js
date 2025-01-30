@@ -26,7 +26,14 @@ export function createListingCard(listing) {
 
   const seller = document.createElement("p");
   seller.className = "text-brand-text mb-2";
-  seller.textContent = `By: ${listing.seller?.name || "Unknown"}`;
+
+  const sellerLink = document.createElement("a");
+  sellerLink.href = `/src/pages/user/index.html?name=${listing.seller.name}`;
+  sellerLink.className = "hover:text-opacity-80";
+  sellerLink.textContent = listing.seller.name;
+
+  seller.textContent = "By: ";
+  seller.appendChild(sellerLink);
 
   const currentBid = document.createElement("p");
   currentBid.className = "text-brand-text mb-2";

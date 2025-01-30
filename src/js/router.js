@@ -32,6 +32,9 @@ export default async function router() {
         module.initProfile()
       );
       break;
+    case "/src/pages/user/index.html":
+      await import("./views/user/index.js").then((module) => module.initUser());
+      break;
     case "/src/pages/404.html":
       await import("./views/error/404.js").then((module) => module.init404());
       break;
