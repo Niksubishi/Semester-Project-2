@@ -25,7 +25,7 @@ export function createListingCard(listing) {
   titleLink.appendChild(title);
 
   const seller = document.createElement("p");
-  seller.className = "text-brand-text mb-2";
+  seller.className = "text-brand-text mb-1";
 
   const sellerLink = document.createElement("a");
   sellerLink.href = `/src/pages/user/index.html?name=${listing.seller.name}`;
@@ -35,15 +35,26 @@ export function createListingCard(listing) {
   seller.textContent = "By: ";
   seller.appendChild(sellerLink);
 
+  const currentPrice = document.createElement("p");
+  currentPrice.className = "text-brand-text mb-1";
+
+  if (listing.bids && listing.bids.length > 0) {
+    const highestBid = listing.bids.sort((a, b) => b.amount - a.amount)[0];
+    const isEnded = new Date(listing.endsAt) <= new Date();
+    const priceLabel = isEnded ? "Final Price" : "Current Price";
+    currentPrice.textContent = `${priceLabel}: $${highestBid.amount}`;
+  } else {
+    currentPrice.textContent = "Current Price: No bids yet";
+  }
   const currentBid = document.createElement("p");
-  currentBid.className = "text-brand-text mb-2";
+  currentBid.className = "text-brand-text mb-1";
   currentBid.textContent = `Total Bids: ${listing._count?.bids || 0}`;
 
   const timeLeft = document.createElement("p");
   timeLeft.className = "text-brand-text";
   timeLeft.textContent = `Time Left: ${calculateTimeLeft(listing.endsAt)}`;
 
-  content.append(titleLink, seller, currentBid, timeLeft);
+  content.append(titleLink, seller, currentPrice, currentBid, timeLeft);
   card.append(imageLink, content);
 
   return card;
@@ -54,15 +65,19 @@ function calculateTimeLeft(endsAt) {
   const now = new Date();
   const diff = end - now;
 
+  if (diff <= 0) {
+    return "Ended";
+  }
+
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
   if (days > 0) {
-    return `${days} days`;
+    return `${days} day${days !== 1 ? "s" : ""}`;
   } else if (hours > 0) {
-    return `${hours} hours`;
+    return `${hours} hour${hours !== 1 ? "s" : ""}`;
   } else {
-    return `${minutes} minutes`;
+    return `${minutes} minute${minutes !== 1 ? "s" : ""}`;
   }
 }
