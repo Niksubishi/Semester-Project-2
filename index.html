@@ -74,7 +74,92 @@
       </nav>
 
       <main>
-        <!-- Main content will go here -->
+        <!-- Welcome Section (logged-out only) -->
+        <section
+          data-auth="logged-out"
+          class="bg-[#D9D9D9] min-h-[350px] w-full flex items-center py-8 md:py-0"
+        >
+          <div class="max-w-7xl mx-auto px-8">
+            <div class="flex flex-col md:flex-row items-center gap-8 md:gap-0">
+              <div class="w-full md:w-[70%] md:pr-8">
+                <h1 class="text-3xl md:text-4xl text-brand-text mb-4">
+                  Welcome to YoBid
+                </h1>
+                <p class="text-brand-text text-base md:text-lg">
+                  Dive into the world of thrilling auctions with YoBid, the
+                  platform where every bid brings you closer to amazing deals!
+                  Explore a wide range of items, place your bids, and watch the
+                  excitement unfold. Whether you're chasing rare collectibles or
+                  everyday treasures, YoBid is the place to score big. Ready,
+                  set, bid!
+                  <a
+                    href="src/pages/register/index.html"
+                    class="font-bold hover:text-opacity-80"
+                    >Sign up now.</a
+                  >
+                </p>
+              </div>
+
+              <div class="w-full md:w-[30%] flex justify-center">
+                <img
+                  src="src/assets/images/auctionpic.png"
+                  alt="Auction"
+                  class="rounded-2xl max-h-[300px] object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Search and Sort Section -->
+        <section class="w-full py-8 bg-brand-body">
+          <div class="max-w-7xl mx-auto px-8 mt-8">
+            <!-- Search Bar -->
+            <div class="flex justify-center mb-4">
+              <input
+                type="search"
+                placeholder="Search listings..."
+                class="w-full max-w-xl px-4 py-2 rounded-2xl focus:outline-none focus:border-brand-text"
+                data-search-input
+              />
+            </div>
+            <!-- Sort Button -->
+            <div class="flex justify-center">
+              <select
+                class="px-4 py-2 rounded-lg focus:outline-none focus:border-brand-text"
+                data-sort-select
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="ending-soon">Ending Soon</option>
+                <option value="ending-last">Ending Last</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- Listings Grid Section -->
+        <section class="w-full py-8 bg-brand-body">
+          <div class="max-w-6xl mx-auto px-8">
+            <!-- Grid Container -->
+            <div
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center"
+              data-listings-grid
+            >
+              <!-- JavaScript will inject listing cards here -->
+            </div>
+
+            <!-- Load More Button -->
+            <div class="flex justify-center mt-8">
+              <button
+                class="px-6 py-2 bg-brand-nav text-brand-text rounded-lg hover:opacity-90"
+                data-load-more
+              >
+                More
+              </button>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   </body>
