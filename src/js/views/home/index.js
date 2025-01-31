@@ -1,7 +1,10 @@
 import { getListings } from "../../api/listings/read.js";
 import { createListingCard } from "../../ui/components/cards.js";
+import { initializeSearch } from "../../ui/handlers/searchHandler.js";
 
 export async function renderListings() {
+  initializeSearch();
+
   const listingsGrid = document.querySelector("[data-listings-grid]");
   const loadMoreBtn = document.querySelector("[data-load-more]");
 
@@ -10,7 +13,11 @@ export async function renderListings() {
   let allListings = [];
 
   try {
-    allListings = await getListings();
+    const listings = await getListings();
+    // Filter out ended listings
+    allListings = listings.filter(
+      (listing) => new Date(listing.endsAt) > new Date()
+    );
     displayListings();
 
     loadMoreBtn.addEventListener("click", displayListings);
