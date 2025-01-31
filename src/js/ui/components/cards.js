@@ -1,5 +1,7 @@
 export function createListingCard(listing) {
   const card = document.createElement("div");
+  card.dataset.listingDate = listing.created;
+  card.dataset.endDate = listing.endsAt;
   card.className = "flex flex-col";
 
   const imageLink = document.createElement("a");

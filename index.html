@@ -129,14 +129,24 @@
                 class="px-4 py-2 rounded-lg focus:outline-none focus:border-brand-text"
                 data-sort-select
               >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
+                <option value="newest">Newest Listed</option>
+                <option value="oldest">Oldest Listed</option>
                 <option value="ending-soon">Ending Soon</option>
                 <option value="ending-last">Ending Last</option>
               </select>
             </div>
           </div>
         </section>
+
+        <!-- Add loader here -->
+        <div
+          class="flex justify-center items-center my-8 hidden"
+          id="listingsLoader"
+        >
+          <div
+            class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-text"
+          ></div>
+        </div>
 
         <!-- Listings Grid Section -->
         <section class="w-full py-8 bg-brand-body">
