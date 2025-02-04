@@ -62,7 +62,7 @@ export function createListingCard(listing) {
   return card;
 }
 
-function calculateTimeLeft(endsAt) {
+export function calculateTimeLeft(endsAt) {
   const end = new Date(endsAt);
   const now = new Date();
   const diff = end - now;

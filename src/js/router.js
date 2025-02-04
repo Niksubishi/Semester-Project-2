@@ -18,9 +18,9 @@ export default async function router() {
       );
       break;
     case "/src/pages/listing/index.html":
-      await import("./views/listing/single.js").then((module) =>
-        module.initListing()
-      );
+      await import("./views/listing/single.js").then((module) => {
+        module.initListing();
+      });
       break;
     case "/src/pages/create/index.html":
       await import("./views/create/index.js").then((module) =>
