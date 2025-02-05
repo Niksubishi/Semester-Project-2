@@ -6,11 +6,11 @@ import { placeBid } from "../../ui/handlers/bidHandler.js";
 
 function createListingHTML(listing) {
   return `
-        <div class="flex gap-8 mb-8">
-            <div class="w-1/2">
-                ${createCarousel(listing.media)}
-            </div>
-            <div class="w-1/2 space-y-4">
+        <div class="flex flex-col md:flex-row gap-8 mb-8">
+    <div class="w-full md:w-1/2">
+        ${createCarousel(listing.media)}
+    </div>
+    <div class="w-full md:w-1/2 space-y-4">
                 <h1 class="text-3xl font-semibold text-brand-text">${
                   listing.title
                 }</h1>
@@ -41,8 +41,8 @@ function createListingHTML(listing) {
             </div>
         </div>
 
-        <div class="bg-[#F4F3EE] rounded-lg p-6 mb-36">
-            <div class="flex justify-between items-center">
+        <div class="bg-[#F4F3EE] rounded-lg p-6 mb-24">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
                 <div class="space-y-2">
                     <p class="text-brand-text">Auction Created: ${new Date(
                       listing.created

@@ -23,8 +23,6 @@ export async function login(email, password) {
   });
 
   const profileData = await profileResponse.json();
-  console.log("Profile Response:", profileResponse);
-  console.log("Profile Data:", profileData);
 
   localStorage.setItem("credits", profileData.data.credits);
 

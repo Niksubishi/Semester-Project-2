@@ -73,8 +73,72 @@
         </div>
       </nav>
 
-      <main>
-        <!-- Main content will go here -->
+      <main class="max-w-7xl mx-auto px-8 mt-16 mb-16">
+        <h1 class="text-4xl font-semibold text-center text-brand-text mb-8">
+          SELL
+        </h1>
+
+        <div class="bg-[#F4F3EE] rounded-lg p-8 max-w-xl mx-auto">
+          <form id="create-listing-form" class="space-y-6">
+            <div>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                required
+                class="w-full p-3 rounded-lg focus:outline-none focus:border-brand-text"
+                placeholder="Title"
+              />
+            </div>
+
+            <div>
+              <textarea
+                id="description"
+                name="description"
+                rows="4"
+                class="w-full p-3 rounded-lg focus:outline-none focus:border-brand-text"
+                placeholder="Description"
+              ></textarea>
+            </div>
+
+            <div>
+              <input
+                type="text"
+                id="tags"
+                name="tags"
+                class="w-full p-3 rounded-lg focus:outline-none focus:border-brand-text"
+                placeholder="Tags (separated by comma)"
+              />
+            </div>
+
+            <div>
+              <input
+                type="text"
+                id="media"
+                name="media"
+                class="w-full p-3 rounded-lg focus:outline-none focus:border-brand-text"
+                placeholder="Image URLs (separated by comma)"
+              />
+            </div>
+
+            <div>
+              <input
+                type="datetime-local"
+                id="endsAt"
+                name="endsAt"
+                required
+                class="w-full p-3 rounded-lg focus:outline-none focus:border-brand-text"
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="w-full bg-[#E0AFA0] text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-colors"
+            >
+              LIST
+            </button>
+          </form>
+        </div>
       </main>
     </div>
   </body>
