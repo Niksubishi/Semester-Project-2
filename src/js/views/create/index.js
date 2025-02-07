@@ -1,5 +1,4 @@
-import { API_LISTINGS } from "../../constants/api.js";
-import { headers } from "../../constants/headers.js";
+import { createListing } from "../../api/listings/create.js";
 
 export async function initCreate() {
   const form = document.getElementById("create-listing-form");
@@ -31,24 +30,13 @@ export async function initCreate() {
     };
 
     try {
-      const response = await fetch(API_LISTINGS.BASE, {
-        method: "POST",
-        headers: headers(token),
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        showSuccessMessage();
-        setTimeout(() => {
-          window.location.href = "/";
-        }, 2000);
-      } else {
-        const error = await response.json();
-        alert(error.message);
-      }
+      await createListing(formData, token);
+      showSuccessMessage();
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 2000);
     } catch (error) {
-      console.error("Error creating listing:", error);
-      alert("Failed to create listing");
+      alert(error.message);
     }
   });
 }
