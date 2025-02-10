@@ -2,6 +2,7 @@ import { API_PROFILES } from "../../constants/api.js";
 import { headers } from "../../constants/headers.js";
 
 export async function updateProfile(name, profileData) {
+  const token = localStorage.getItem("token");
   const response = await fetch(API_PROFILES.SINGLE(name), {
     method: "PUT",
     eaders: headers(token),

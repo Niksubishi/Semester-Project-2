@@ -1,7 +1,7 @@
 export function createEditProfileModal(profile) {
   return `
         <div id="edit-profile-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-lg p-6 w-full max-w-xl">
+            <div class="bg-[#F4F3EE] rounded-lg p-6 w-full max-w-xl">
                 <h2 class="text-2xl font-semibold text-brand-text mb-4">Edit Profile</h2>
                 <form id="edit-profile-form" class="space-y-4">
                     <div>
