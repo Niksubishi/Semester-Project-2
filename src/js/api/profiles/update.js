@@ -5,12 +5,19 @@ export async function updateProfile(name, profileData) {
   const token = localStorage.getItem("token");
   const response = await fetch(API_PROFILES.SINGLE(name), {
     method: "PUT",
-    eaders: headers(token),
-    body: JSON.stringify(profileData),
+    headers: headers(token),
+    body: JSON.stringify({
+      avatar: {
+        url: profileData.avatar.url,
+        alt: profileData.avatar.alt,
+      },
+      bio: profileData.bio,
+    }),
   });
 
   if (!response.ok) {
-    throw new Error("Failed to update profile");
+    const err = await response.json();
+    throw new Error(err.errors?.[0]?.message || "Failed to update profile");
   }
 
   return response.json();

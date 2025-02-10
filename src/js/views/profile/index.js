@@ -261,9 +261,28 @@ export async function initProfile() {
 
         try {
           await updateProfile(username, updateData);
-          window.location.reload();
+
+          const successMessage = document.createElement("div");
+          successMessage.className =
+            "fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-transform duration-500 ease-in-out";
+          successMessage.textContent = "Profile Updated!";
+          document.body.appendChild(successMessage);
+
+          setTimeout(() => {
+            successMessage.remove();
+            window.location.reload();
+          }, 3000);
+
+          modal.remove();
         } catch (error) {
-          alert(error.message);
+          const errorMessage = document.createElement("div");
+          errorMessage.className =
+            "fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg";
+          errorMessage.textContent =
+            error.message || "Failed to update profile";
+          document.body.appendChild(errorMessage);
+
+          setTimeout(() => errorMessage.remove(), 3000);
         }
       });
     });
