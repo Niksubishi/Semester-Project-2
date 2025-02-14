@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>YoBid - Online Auction House</title>
     <script type="module" src="src/js/main.js"></script>
-    <link rel="stylesheet" href="src/style.css" />
   </head>
   <body class="bg-brand-body">
     <div id="app">
@@ -138,7 +137,7 @@
           </div>
         </section>
 
-        <!-- Add loader here -->
+        <!-- loader -->
         <div
           class="flex justify-center items-center my-8 hidden"
           id="listingsLoader"
@@ -148,18 +147,14 @@
           ></div>
         </div>
 
-        <!-- Listings Grid Section -->
+        <!-- Listings Grid  -->
         <section class="w-full py-8 bg-brand-body">
           <div class="max-w-6xl mx-auto px-8">
-            <!-- Grid Container -->
             <div
               class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center"
               data-listings-grid
-            >
-              <!-- JavaScript will inject listing cards here -->
-            </div>
+            ></div>
 
-            <!-- Load More Button -->
             <div class="flex justify-center mt-8">
               <button
                 class="px-6 py-2 bg-brand-nav text-brand-text rounded-lg hover:opacity-90"

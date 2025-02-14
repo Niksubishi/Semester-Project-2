@@ -44,7 +44,7 @@ export function createListingCard(listing) {
     const highestBid = listing.bids.sort((a, b) => b.amount - a.amount)[0];
     const isEnded = new Date(listing.endsAt) <= new Date();
     const priceLabel = isEnded ? "Final Price" : "Current Price";
-    currentPrice.textContent = `${priceLabel}: $${highestBid.amount}`;
+    currentPrice.textContent = `${priceLabel}: ${highestBid.amount}`;
   } else {
     currentPrice.textContent = "Current Price: No bids yet";
   }
