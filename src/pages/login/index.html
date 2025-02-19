@@ -8,8 +8,8 @@
     <script type="module" src="../../js/main.js"></script>
     <link rel="shortcut icon" href="/favicon.ico" />
   </head>
-  <body class="bg-brand-body">
-    <div id="app">
+  <body class="bg-brand-body flex flex-col min-h-screen">
+    <div id="app" class="flex-grow">
       <nav
         class="bg-brand-nav h-auto md:h-[73px] shadow-md flex items-center py-4 md:py-0"
       >
@@ -73,7 +73,7 @@
         </div>
       </nav>
 
-      <main class="max-w-7xl mx-auto px-8 mt-16">
+      <main class="max-w-7xl mx-auto px-8 mt-16 mb-32">
         <h1 class="text-4xl font-semibold text-center text-brand-text mb-12">
           LOGIN
         </h1>
@@ -135,5 +135,9 @@
         </form>
       </main>
     </div>
+
+    <footer class="bg-brand-nav text-brand-text text-center py-6">
+      ©2025 YoBid Auction House. Developed by Nik Bishop.
+    </footer>
   </body>
 </html>

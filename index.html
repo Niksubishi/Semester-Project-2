@@ -6,6 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>YoBid - Online Auction House</title>
     <script type="module" src="src/js/main.js"></script>
+    <style>
+      html,
+      body {
+        height: 100%;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      #app {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+    </style>
   </head>
   <body class="bg-brand-body">
     <div id="app">
@@ -72,7 +87,7 @@
         </div>
       </nav>
 
-      <main>
+      <main class="flex-grow">
         <!-- Welcome Section (logged-out only) -->
         <section
           data-auth="logged-out"
@@ -137,7 +152,7 @@
           </div>
         </section>
 
-        <!-- loader -->
+        <!-- loader (Spinner) -->
         <div
           class="flex justify-center items-center my-8 hidden"
           id="listingsLoader"
@@ -166,6 +181,13 @@
           </div>
         </section>
       </main>
+
+      <!-- Footer -->
+      <footer
+        class="bg-brand-nav h-16 flex items-center justify-center text-brand-text text-center"
+      >
+        ©2025 YoBid Auction House. Developed by Nik Bishop.
+      </footer>
     </div>
   </body>
 </html>
