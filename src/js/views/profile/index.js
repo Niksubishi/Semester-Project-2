@@ -11,7 +11,7 @@ const ITEMS_PER_PAGE = 3;
 
 function createProfileHTML(profile) {
   return `
-        <h1 class="text-4xl text-center text-brand-text mb-8">PROFILE</h1>
+        <h1 class="text-4xl text-center text-brand-text mb-8 mt-4">PROFILE</h1>
         
         <div class="bg-[#F4F3EE] rounded-lg p-8 mb-8">
     <div class="flex flex-col md:flex-row gap-8">

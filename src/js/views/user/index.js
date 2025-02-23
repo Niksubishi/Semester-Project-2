@@ -17,7 +17,7 @@ function createUserProfileHTML(profile) {
                          class="w-full h-64 object-cover rounded-lg">
                 </div>
                 <div class="w-full md:w-2/3 space-y-4">
-                    <div class="w-full text-center">
+                    <div class="w-full text-left">
                         <p class="text-lg"><strong>Name:</strong> ${
                           profile.name
                         }</p>

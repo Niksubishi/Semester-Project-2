@@ -23,6 +23,7 @@ export async function renderListings() {
 
   try {
     loader.classList.remove("hidden");
+    loadMoreBtn.style.display = "none";
     const listings = await getListings();
 
     allListings = listings.filter(

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="src/assets/images/logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 - YoBid Auction House</title>
+    <script type="module" src="../js/main.js"></script>
+    <link rel="shortcut icon" href="/favicon.ico" />
+  </head>
+  <body class="bg-brand-body flex flex-col min-h-screen">
+    <div id="app" class="flex-grow">
+      <nav
+        class="bg-brand-nav h-auto md:h-[73px] shadow-md flex items-center py-4 md:py-0"
+      >
+        <div class="max-w-7xl mx-auto px-8 w-full">
+          <div
+            class="flex flex-col md:flex-row justify-between items-center w-full gap-4 md:gap-0"
+          >
+            <a href="/" class="flex items-center justify-center -ml-4">
+              <img
+                src="../assets/images/logo.png"
+                alt="YoBid Logo"
+                class="h-12 md:h-14"
+              />
+            </a>
+
+            <!-- Nav Links -->
+            <div class="flex items-center space-x-6">
+              <div data-auth="logged-out">
+                <a href="/" class="text-brand-text hover:text-opacity-80"
+                  >Home</a
+                >
+                <a
+                  href="/src/pages/login/index.html"
+                  class="text-brand-text hover:text-opacity-80 ml-6"
+                  >Login</a
+                >
+                <a
+                  href="/src/pages/register/index.html"
+                  class="text-brand-text hover:text-opacity-80 ml-6"
+                  >Register</a
+                >
+              </div>
+
+              <!-- Logged in state -->
+              <div data-auth="logged-in" class="hidden">
+                <a href="/" class="text-brand-text hover:text-opacity-80"
+                  >Home</a
+                >
+                <a
+                  href="/src/pages/create/index.html"
+                  class="text-brand-text hover:text-opacity-80 ml-6 font-bold"
+                  >Sell</a
+                >
+                <a
+                  href="/src/pages/profile/index.html"
+                  class="text-brand-text hover:text-opacity-80 ml-6"
+                  >Profile</a
+                >
+                <span class="text-brand-text ml-6"
+                  >Credits: <span data-credits>0</span></span
+                >
+                <button
+                  class="text-brand-text hover:text-opacity-80 ml-6"
+                  data-logout
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <main class="flex-grow flex items-center justify-center">
+        <div class="text-center">
+          <h1 class="text-6xl font-semibold text-brand-text mb-4 mt-32">404</h1>
+          <p class="text-2xl text-brand-text mb-8">
+            Going once... going twice... page not found!
+          </p>
+          <a
+            href="/"
+            class="bg-[#E0AFA0] text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-colors"
+          >
+            Return to Auctions
+          </a>
+        </div>
+      </main>
+    </div>
+
+    <footer class="bg-brand-nav text-brand-text text-center py-6">
+      ©2025 YoBid Auction House. Developed by Nik Bishop.
+    </footer>
+  </body>
+</html>

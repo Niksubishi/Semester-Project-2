@@ -107,6 +107,7 @@ function createListingHTML(listing) {
 export async function initListing() {
   const params = new URLSearchParams(window.location.search);
   const id = params.get("id");
+  const loader = document.getElementById("listingsLoader");
 
   if (!id) {
     window.location.href = "/404.html";
@@ -114,109 +115,120 @@ export async function initListing() {
   }
 
   try {
+    loader.classList.remove("hidden");
+
     const response = await fetch(
       `${API_LISTINGS.SINGLE(id)}?_seller=true&_bids=true`,
       {
         headers: headers(),
       }
     );
-    const { data } = await response.json();
 
-    const mainContent = document.querySelector("main");
-    mainContent.innerHTML = createListingHTML(data);
-
-    requestAnimationFrame(() => {
-      setupCarousel();
-    });
-
-    const isLoggedIn = Boolean(localStorage.getItem("token"));
-    const bidButton = document.getElementById("bid-button");
-    const bidInput = document.getElementById("bid-amount");
-    const editButton = document.getElementById("edit-button");
-    const deleteButton = document.getElementById("delete-button");
-
-    if (!isLoggedIn) {
-      bidButton.style.display = "none";
-      bidInput.style.display = "none";
+    if (!response.ok) {
+      throw new Error("Failed to fetch listing data");
     }
 
-    if (bidButton) {
-      bidButton.addEventListener("click", async () => {
-        const amount = bidInput.value;
+    const { data } = await response.json();
+    const mainContent = document.querySelector("main");
+
+    mainContent.innerHTML = createListingHTML(data);
+  } catch (error) {
+    console.error("Error loading listing:", error);
+    document.querySelector("main").innerHTML =
+      "<p class='text-red-500 text-center'>Failed to load listing.</p>";
+  } finally {
+    loader.classList.add("hidden");
+  }
+
+  requestAnimationFrame(() => {
+    setupCarousel();
+  });
+
+  const isLoggedIn = Boolean(localStorage.getItem("token"));
+  const bidButton = document.getElementById("bid-button");
+  const bidInput = document.getElementById("bid-amount");
+  const editButton = document.getElementById("edit-button");
+  const deleteButton = document.getElementById("delete-button");
+
+  if (!isLoggedIn) {
+    bidButton.style.display = "none";
+    bidInput.style.display = "none";
+  }
+
+  if (bidButton) {
+    bidButton.addEventListener("click", async () => {
+      const amount = bidInput.value;
+      try {
+        await placeBid(id, amount);
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+  }
+
+  if (editButton) {
+    editButton.addEventListener("click", () => {
+      document.body.insertAdjacentHTML("beforeend", createEditModal(data));
+
+      const modal = document.getElementById("edit-modal");
+      const form = document.getElementById("edit-form");
+      const cancelButton = document.getElementById("cancel-edit");
+
+      cancelButton.addEventListener("click", () => {
+        modal.remove();
+      });
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const updateData = {
+          title: form.querySelector("#edit-title").value,
+          description: form.querySelector("#edit-description").value,
+          tags: form
+            .querySelector("#edit-tags")
+            .value.split(",")
+            .map((tag) => tag.trim())
+            .filter(Boolean),
+          media: form
+            .querySelector("#edit-media")
+            .value.split(",")
+            .map((url) => ({
+              url: url.trim(),
+              alt: "Listing image",
+            }))
+            .filter((media) => media.url),
+        };
+
         try {
-          await placeBid(id, amount);
+          await updateListing(id, updateData);
+          showSuccessMessage("Listing updated successfully!");
           setTimeout(() => {
             window.location.reload();
-          }, 3000);
+          }, 2000);
         } catch (error) {
           alert(error.message);
         }
       });
-    }
+    });
+  }
 
-    if (editButton) {
-      editButton.addEventListener("click", () => {
-        document.body.insertAdjacentHTML("beforeend", createEditModal(data));
-
-        const modal = document.getElementById("edit-modal");
-        const form = document.getElementById("edit-form");
-        const cancelButton = document.getElementById("cancel-edit");
-
-        cancelButton.addEventListener("click", () => {
-          modal.remove();
-        });
-
-        form.addEventListener("submit", async (e) => {
-          e.preventDefault();
-
-          const updateData = {
-            title: form.querySelector("#edit-title").value,
-            description: form.querySelector("#edit-description").value,
-            tags: form
-              .querySelector("#edit-tags")
-              .value.split(",")
-              .map((tag) => tag.trim())
-              .filter(Boolean),
-            media: form
-              .querySelector("#edit-media")
-              .value.split(",")
-              .map((url) => ({
-                url: url.trim(),
-                alt: "Listing image",
-              }))
-              .filter((media) => media.url),
-          };
-
-          try {
-            await updateListing(id, updateData);
-            showSuccessMessage("Listing updated successfully!");
-            setTimeout(() => {
-              window.location.reload();
-            }, 2000);
-          } catch (error) {
-            alert(error.message);
-          }
-        });
-      });
-    }
-
-    if (deleteButton) {
-      deleteButton.addEventListener("click", async () => {
-        if (confirm("Are you sure you want to delete this listing?")) {
-          try {
-            await deleteListing(id);
-            showSuccessMessage("Listing deleted successfully!");
-            setTimeout(() => {
-              window.location.href = "/";
-            }, 2000);
-          } catch (error) {
-            alert(error.message);
-          }
+  if (deleteButton) {
+    deleteButton.addEventListener("click", async () => {
+      if (confirm("Are you sure you want to delete this listing?")) {
+        try {
+          await deleteListing(id);
+          showSuccessMessage("Listing deleted successfully!");
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 2000);
+        } catch (error) {
+          alert(error.message);
         }
-      });
-    }
-  } catch (error) {
-    console.error("Error fetching listing:", error);
+      }
+    });
   }
 }
 
