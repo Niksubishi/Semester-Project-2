@@ -21,7 +21,6 @@ async function getCurrentCredits() {
     }
 
     const { data } = await response.json();
-
     localStorage.setItem("credits", data.credits);
     refreshCreditsDisplay();
     return data.credits;
@@ -61,5 +60,15 @@ export async function initNav() {
 
   if (creditsElement) {
     observer.observe(creditsElement, { childList: true, subtree: true });
+  }
+
+  // Hamburger menu toggle
+  const menuToggle = document.getElementById("menuToggle");
+  const navMenu = document.getElementById("navMenu");
+
+  if (menuToggle && navMenu) {
+    menuToggle.addEventListener("click", () => {
+      navMenu.classList.toggle("hidden");
+    });
   }
 }
