@@ -57,9 +57,7 @@ export async function renderListings() {
 
     currentPage++;
 
-    if (end >= allListings.length) {
-      loadMoreBtn.style.display = "none";
-    }
+    loadMoreBtn.style.display = end < allListings.length ? "block" : "none";
   }
 
   function sortListings(listings, sortType) {
@@ -83,5 +81,17 @@ export async function renderListings() {
       default:
         return listings;
     }
+  }
+
+  function handleUsernameClick(username) {
+    const isLoggedIn = Boolean(localStorage.getItem("token"));
+
+    if (isLoggedIn) {
+      window.location.href = `/src/pages/user/index.html?name=${username}`;
+    } else {
+      window.location.href = "/src/pages/login/index.html";
+    }
+
+    return false;
   }
 }
