@@ -34,7 +34,11 @@ function createUserProfileHTML(profile) {
 
         <h2 class="text-xl text-center mb-3">Listings</h2>
         <div class="bg-[#F4F3EE] rounded-lg p-4 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 justify-items-center" id="listings-container"></div>
+            <div class="flex justify-center gap-4 mb-4">
+                <button id="active-listings-tab" class="px-6 py-2 bg-[#E0AFA0] text-white rounded-lg">Active</button>
+                <button id="expired-listings-tab" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg">Expired</button>
+            </div>
+            <div id="listings-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 justify-items-center"></div>
             <div class="flex justify-center items-center my-8 hidden" id="listings-loader">
                 <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-text"></div>
             </div>
@@ -80,6 +84,8 @@ export async function initUser() {
     const listingsLoader = document.getElementById("listings-loader");
     const listingsContainer = document.getElementById("listings-container");
     const loadMoreListings = document.getElementById("load-more-listings");
+    const activeTab = document.getElementById("active-listings-tab");
+    const expiredTab = document.getElementById("expired-listings-tab");
 
     listingsLoader.classList.remove("hidden");
     const response = await fetch(
@@ -91,16 +97,47 @@ export async function initUser() {
     const { data: listings } = await response.json();
     allListings = listings || [];
 
+    const activeListings = allListings.filter(
+      (listing) => new Date(listing.endsAt) > new Date()
+    );
+    const expiredListings = allListings.filter(
+      (listing) => new Date(listing.endsAt) <= new Date()
+    );
+    let currentListings = activeListings;
+
+    function switchTab(isActive) {
+      currentListingsPage = 0;
+      listingsContainer.innerHTML = "";
+      currentListings = isActive ? activeListings : expiredListings;
+
+      activeTab.className = isActive
+        ? "px-6 py-2 bg-[#E0AFA0] text-white rounded-lg"
+        : "px-6 py-2 bg-gray-300 text-gray-700 rounded-lg";
+
+      expiredTab.className = !isActive
+        ? "px-6 py-2 bg-[#E0AFA0] text-white rounded-lg"
+        : "px-6 py-2 bg-gray-300 text-gray-700 rounded-lg";
+
+      if (currentListings.length > 0) {
+        displayListings();
+      } else {
+        listingsContainer.innerHTML = `<p class="text-gray-500">No ${
+          isActive ? "active" : "expired"
+        } listings</p>`;
+        loadMoreListings.classList.add("hidden");
+      }
+    }
+
+    activeTab.addEventListener("click", () => switchTab(true));
+    expiredTab.addEventListener("click", () => switchTab(false));
+
     function displayListings() {
       listingsLoader.classList.remove("hidden");
       loadMoreListings.classList.add("hidden");
 
-      const sortedListings = allListings.sort(
-        (a, b) => new Date(a.endsAt) - new Date(b.endsAt)
-      );
       const start = currentListingsPage * itemsPerPage;
       const end = start + itemsPerPage;
-      const pageListings = sortedListings.slice(start, end);
+      const pageListings = currentListings.slice(start, end);
 
       setTimeout(() => {
         pageListings.forEach((listing) => {
@@ -114,20 +151,20 @@ export async function initUser() {
         currentListingsPage++;
         listingsLoader.classList.add("hidden");
 
-        if (end < allListings.length) {
+        if (end < currentListings.length) {
           loadMoreListings.classList.remove("hidden");
         }
       }, 500);
     }
 
-    if (allListings.length > 0) {
-      displayListings();
-      loadMoreListings.addEventListener("click", displayListings);
+    if (activeListings.length > 0) {
+      switchTab(true);
     } else {
-      listingsLoader.classList.add("hidden");
       listingsContainer.innerHTML =
-        '<p class="text-gray-500">No listings yet</p>';
+        '<p class="text-gray-500">No active listings</p>';
     }
+
+    loadMoreListings.addEventListener("click", displayListings);
 
     const winsLoader = document.getElementById("wins-loader");
     const winsContainer = document.getElementById("wins-container");
