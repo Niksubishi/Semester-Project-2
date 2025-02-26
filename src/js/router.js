@@ -7,12 +7,12 @@ export default async function router() {
         module.renderListings()
       );
       break;
-    case "/src/pages/login/index.html":
+    case "/src/pages/login/":
       await import("./views/auth/login.js").then((module) =>
         module.initLogin()
       );
       break;
-    case "/src/pages/register/index.html":
+    case "/src/pages/register/":
       await import("./views/auth/register.js").then((module) =>
         module.initRegister()
       );
@@ -22,12 +22,13 @@ export default async function router() {
         module.initListing();
       });
       break;
-    case "/src/pages/create/index.html":
+    case "/src/pages/create/":
       await import("./views/create/index.js").then((module) =>
         module.initCreate()
       );
       break;
-    case "/src/pages/profile/index.html":
+      break;
+    case "/src/pages/profile/":
       await import("./views/profile/index.js").then((module) =>
         module.initProfile()
       );
@@ -36,9 +37,9 @@ export default async function router() {
       await import("./views/user/index.js").then((module) => module.initUser());
       break;
     case "/src/pages/404.html":
-      await import("./views/error/404.js").then((module) => module.init404());
+      window.location.href = "/src/pages/404.html";
       break;
     default:
-      await import("./views/error/404.js").then((module) => module.init404());
+      window.location.href = "/src/pages/404.html";
   }
 }
