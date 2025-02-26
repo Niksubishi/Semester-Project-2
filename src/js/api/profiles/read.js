@@ -3,24 +3,42 @@ import { headers } from "../../constants/headers.js";
 
 export async function getProfile(name) {
   const token = localStorage.getItem("token");
-  const response = await fetch(
-    `${API_PROFILES.SINGLE(name)}?${API_FLAGS.LISTINGS}&${API_FLAGS.WINS}`,
+
+  const listingsResponse = await fetch(
+    `${API_PROFILES.SINGLE(name)}/listings?_bids=true&_seller=true`,
     {
       headers: headers(token),
     }
   );
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch profile");
+  const winsResponse = await fetch(`${API_PROFILES.SINGLE(name)}?_wins=true`, {
+    headers: headers(token),
+  });
+
+  if (!listingsResponse.ok || !winsResponse.ok) {
+    throw new Error("Failed to fetch profile data");
   }
 
-  return response.json();
+  const listingsData = await listingsResponse.json();
+  const winsData = await winsResponse.json();
+
+  const combinedData = {
+    ...winsData,
+    data: {
+      ...winsData.data,
+      listings: listingsData.data,
+    },
+  };
+
+  return combinedData;
 }
 
 export async function getProfileBids(name) {
   const token = localStorage.getItem("token");
   const response = await fetch(
-    `${API_PROFILES.BIDS(name)}?_listings=true&_seller=true&_active=true`,
+    `${API_PROFILES.BIDS(name)}?_listings=true&_seller=true&_active=true&${
+      API_FLAGS.BIDS
+    }`,
     {
       headers: headers(token),
     }

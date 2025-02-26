@@ -104,7 +104,6 @@ export async function initProfile() {
     const mainContent = document.querySelector("main");
     mainContent.innerHTML = createProfileHTML(profile);
 
-    // Get DOM elements after HTML is rendered
     const listingsLoader = document.getElementById("listings-loader");
     const listingsContainer = document.getElementById("listings-container");
     const loadMoreListings = document.getElementById("load-more-listings");
@@ -157,9 +156,16 @@ export async function initProfile() {
 
       setTimeout(() => {
         pageListings.forEach((listing) => {
+          // Add this console.log to check the listing data
+          console.log("Listing data:", listing);
+
           const card = createListingCard({
             ...listing,
             seller: { name: profile.name },
+            _count: {
+              bids: listing.bids?.length || 0,
+            },
+            bids: listing.bids || [],
           });
           listingsContainer.appendChild(card);
         });
@@ -173,7 +179,6 @@ export async function initProfile() {
       }, 500);
     }
 
-    // Initial display
     if (activeListings.length > 0) {
       switchTab(true);
     } else {
