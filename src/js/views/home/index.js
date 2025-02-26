@@ -82,16 +82,4 @@ export async function renderListings() {
         return listings;
     }
   }
-
-  function handleUsernameClick(username) {
-    const isLoggedIn = Boolean(localStorage.getItem("token"));
-
-    if (isLoggedIn) {
-      window.location.href = `/src/pages/user/index.html?name=${username}`;
-    } else {
-      window.location.href = "/src/pages/login/index.html";
-    }
-
-    return false;
-  }
 }

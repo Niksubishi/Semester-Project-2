@@ -4,6 +4,8 @@ export function initLogin() {
   const form = document.getElementById("loginForm");
   const passwordToggle = document.querySelector("[data-password-toggle]");
   const passwordInput = document.getElementById("password");
+  const params = new URLSearchParams(window.location.search);
+  const returnUrl = params.get("returnTo");
 
   passwordToggle.addEventListener("click", () => {
     const type = passwordInput.type === "password" ? "text" : "password";
@@ -17,6 +19,11 @@ export function initLogin() {
 
     try {
       await login(email, password);
+      if (returnUrl) {
+        window.location.href = returnUrl;
+      } else {
+        window.location.href = "/";
+      }
     } catch (error) {
       alert(error.message);
     }
