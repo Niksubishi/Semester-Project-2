@@ -1,21 +1,24 @@
 import { API_LISTINGS, API_FLAGS } from "../../constants/api.js";
 
-export async function getListings() {
-  let allListings = [];
-  let currentPage = 1;
-  let hasMorePages = true;
+export async function getListings(
+  page = 1,
+  limit = 9,
+  sort = "created",
+  sortOrder = "desc"
+) {
+  const response = await fetch(
+    `${API_LISTINGS.BASE}?page=${page}&limit=${limit}&sort=${sort}&sortOrder=${sortOrder}&_active=true&${API_FLAGS.SELLER}&${API_FLAGS.BIDS}`
+  );
 
-  while (hasMorePages) {
-    const response = await fetch(
-      `${API_LISTINGS.BASE}?page=${currentPage}&${API_FLAGS.SELLER}&${API_FLAGS.BIDS}`
-    );
-    const { data, meta } = await response.json();
-
-    allListings = [...allListings, ...data];
-
-    hasMorePages = !meta.isLastPage;
-    currentPage++;
+  if (!response.ok) {
+    throw new Error(`API request failed with status ${response.status}`);
   }
 
-  return allListings;
+  const data = await response.json();
+
+  return {
+    listings: data.data || [],
+    meta: data.meta || { isLastPage: true },
+    currentPage: page,
+  };
 }
