@@ -64,7 +64,7 @@ export async function initUser() {
   const token = localStorage.getItem("token");
   if (!token) {
     const returnUrl = encodeURIComponent(window.location.href);
-    window.location.href = `/src/pages/login/index.html?returnTo=${returnUrl}`;
+    window.location.href = `/src/pages/login/?returnTo=${returnUrl}`;
     return;
   }
 
