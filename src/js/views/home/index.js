@@ -12,74 +12,85 @@ export async function renderListings() {
   const loader = document.getElementById("listingsLoader");
   const sortSelect = document.querySelector("[data-sort-select]");
 
-  window.addEventListener("reloadListings", () => {
-    currentPage = 0;
-    displayListings();
-  });
-
-  let currentPage = 0;
+  let currentPage = 1;
   const itemsPerPage = 9;
-  let allListings = [];
+  let isLastPage = false;
 
-  try {
-    loader.classList.remove("hidden");
-    loadMoreBtn.style.display = "none";
-    const listings = await getListings();
+  // Track current sort settings
+  let currentSortSettings = getSortSettings(sortSelect.value);
 
-    allListings = listings.filter(
-      (listing) => new Date(listing.endsAt) > new Date()
-    );
-
-    displayListings();
-
-    loadMoreBtn.addEventListener("click", displayListings);
-    sortSelect.addEventListener("change", () => {
-      listingsGrid.innerHTML = "";
-      currentPage = 0;
-      displayListings();
-    });
-  } catch (error) {
-    console.error("Error loading listings:", error);
-  } finally {
-    loader.classList.add("hidden");
-  }
-
-  function displayListings() {
-    const sortedListings = sortListings(allListings, sortSelect.value);
-    const start = currentPage * itemsPerPage;
-    const end = start + itemsPerPage;
-    const pageListings = sortedListings.slice(start, end);
-
-    pageListings.forEach((listing) => {
-      const card = createListingCard(listing);
-      listingsGrid.appendChild(card);
-    });
-
-    currentPage++;
-
-    loadMoreBtn.style.display = end < allListings.length ? "block" : "none";
-  }
-
-  function sortListings(listings, sortType) {
-    switch (sortType) {
+  // Convert UI sort selection to API sort parameters
+  function getSortSettings(uiSortValue) {
+    switch (uiSortValue) {
       case "newest":
-        return [...listings].sort(
-          (a, b) => new Date(b.created) - new Date(a.created)
-        );
+        return { sort: "created", sortOrder: "desc" };
       case "oldest":
-        return [...listings].sort(
-          (a, b) => new Date(a.created) - new Date(b.created)
-        );
+        return { sort: "created", sortOrder: "asc" };
       case "ending-soon":
-        return [...listings].sort(
-          (a, b) => new Date(a.endsAt) - new Date(b.endsAt)
-        );
+        return { sort: "endsAt", sortOrder: "asc" };
       case "ending-last":
-        return [...listings].sort(
-          (a, b) => new Date(b.endsAt) - new Date(a.endsAt)
-        );
+        return { sort: "endsAt", sortOrder: "desc" };
       default:
-        return listings;
+        return { sort: "created", sortOrder: "desc" };
     }
   }
+
+  window.addEventListener("reloadListings", () => {
+    listingsGrid.innerHTML = "";
+    currentPage = 1;
+    isLastPage = false;
+    loadListings();
+  });
+
+  async function loadListings() {
+    try {
+      loader.classList.remove("hidden");
+      loadMoreBtn.style.display = "none";
+
+      const { sort, sortOrder } = currentSortSettings;
+      const { listings, meta } = await getListings(
+        currentPage,
+        itemsPerPage,
+        sort,
+        sortOrder
+      );
+
+      isLastPage = meta.isLastPage;
+
+      if (listings.length === 0) {
+        if (currentPage === 1) {
+          listingsGrid.innerHTML = `<p class="col-span-full text-center text-lg">No active listings found</p>`;
+        }
+        loadMoreBtn.style.display = "none";
+        return;
+      }
+
+      listings.forEach((listing) => {
+        const card = createListingCard(listing);
+        listingsGrid.appendChild(card);
+      });
+
+      currentPage++;
+
+      loadMoreBtn.style.display = isLastPage ? "none" : "block";
+    } catch (error) {
+      console.error("Error loading listings:", error);
+      listingsGrid.innerHTML += `<p class="col-span-full text-center text-lg text-red-500">Error loading listings. Please try again later.</p>`;
+    } finally {
+      loader.classList.add("hidden");
+    }
+  }
+
+  sortSelect.addEventListener("change", () => {
+    currentSortSettings = getSortSettings(sortSelect.value);
+    listingsGrid.innerHTML = "";
+    currentPage = 1;
+    isLastPage = false;
+    loadListings();
+  });
+
+  loadMoreBtn.addEventListener("click", loadListings);
+
+  // Initial load
+  loadListings();
 }
