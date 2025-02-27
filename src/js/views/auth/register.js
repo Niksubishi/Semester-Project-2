@@ -63,7 +63,7 @@ export function initRegister() {
     try {
       await register({ name: username, email, password });
       alert("Registration successful! Redirecting to login page...");
-      window.location.href = "/src/pages/login/index.html";
+      window.location.href = "/src/pages/login/";
     } catch (error) {
       alert(error.message);
     }

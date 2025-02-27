@@ -1,3 +1,11 @@
+export function setWelcomeUsername() {
+  const username = localStorage.getItem("username");
+  const welcomeUsername = document.getElementById("welcomeUsername");
+  if (welcomeUsername && username) {
+    welcomeUsername.textContent = username;
+  }
+}
+
 export function updateAuthState() {
   const token = localStorage.getItem("token");
   const loggedOutElements = document.querySelectorAll(
@@ -12,4 +20,6 @@ export function updateAuthState() {
     loggedOutElements.forEach((element) => element.classList.remove("hidden"));
     loggedInElements.forEach((element) => element.classList.add("hidden"));
   }
+
+  setWelcomeUsername();
 }
