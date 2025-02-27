@@ -16,10 +16,8 @@ export async function renderListings() {
   const itemsPerPage = 9;
   let isLastPage = false;
 
-  // Track current sort settings
   let currentSortSettings = getSortSettings(sortSelect.value);
 
-  // Convert UI sort selection to API sort parameters
   function getSortSettings(uiSortValue) {
     switch (uiSortValue) {
       case "newest":
@@ -91,6 +89,5 @@ export async function renderListings() {
 
   loadMoreBtn.addEventListener("click", loadListings);
 
-  // Initial load
   loadListings();
 }
