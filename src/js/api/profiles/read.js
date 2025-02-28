@@ -1,4 +1,4 @@
-import { API_PROFILES, API_FLAGS } from "../../constants/api.js";
+import { API_PROFILES, API_FLAGS, API_LISTINGS } from "../../constants/api.js";
 import { headers } from "../../constants/headers.js";
 
 export async function getProfile(name) {
@@ -36,9 +36,9 @@ export async function getProfile(name) {
 export async function getProfileBids(name) {
   const token = localStorage.getItem("token");
   const response = await fetch(
-    `${API_PROFILES.BIDS(name)}?_listings=true&_seller=true&_active=true&${
-      API_FLAGS.BIDS
-    }`,
+    `${API_PROFILES.BIDS(
+      name
+    )}?_listings=true&_seller=true&_active=true&_seller=true&${API_FLAGS.BIDS}`,
     {
       headers: headers(token),
     }
@@ -53,12 +53,25 @@ export async function getProfileBids(name) {
 
 export async function getProfileWins(name) {
   const token = localStorage.getItem("token");
-  const response = await fetch(API_PROFILES.WINS(name), {
+  const response = await fetch(`${API_PROFILES.WINS(name)}?_seller=true`, {
     headers: headers(token),
   });
 
   if (!response.ok) {
     throw new Error("Failed to fetch wins");
+  }
+
+  return response.json();
+}
+
+export async function getListing(id) {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_LISTINGS.SINGLE(id)}?_seller=true`, {
+    headers: headers(token),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch listing with ID: ${id}`);
   }
 
   return response.json();

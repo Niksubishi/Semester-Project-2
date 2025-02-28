@@ -2,6 +2,7 @@ import {
   getProfile,
   getProfileBids,
   getProfileWins,
+  getListing,
 } from "../../api/profiles/read.js";
 import { updateProfile } from "../../api/profiles/update.js";
 import { createEditProfileModal } from "../../ui/components/editProfileModal.js";
@@ -156,9 +157,6 @@ export async function initProfile() {
 
       setTimeout(() => {
         pageListings.forEach((listing) => {
-          // Add this console.log to check the listing data
-          console.log("Listing data:", listing);
-
           const card = createListingCard({
             ...listing,
             seller: { name: profile.name },
@@ -201,7 +199,7 @@ export async function initProfile() {
           (a, b) => new Date(a.listing.endsAt) - new Date(b.listing.endsAt)
         ) || [];
 
-    function displayBids() {
+    async function displayBids() {
       bidsLoader.classList.remove("hidden");
       loadMoreBids.classList.add("hidden");
 
@@ -209,13 +207,27 @@ export async function initProfile() {
       const end = start + ITEMS_PER_PAGE;
       const pageBids = activeBids.slice(start, end);
 
+      const listingPromises = pageBids.map(async (bid) => {
+        try {
+          const { data: listing } = await getListing(bid.listing.id);
+          return { ...bid, listing };
+        } catch (error) {
+          console.error("Error fetching listing:", error);
+          return { ...bid, listing: { seller: { name: "Unknown Seller" } } };
+        }
+      });
+
+      const bidsWithListings = await Promise.all(listingPromises);
+
       setTimeout(() => {
-        pageBids.forEach((bid) => {
+        bidsWithListings.forEach((bid) => {
+          const sellerName = bid.listing.seller?.name || "Unknown Seller";
+
           const card = createListingCard({
             ...bid.listing,
             bids: [{ amount: bid.amount }],
             _count: { bids: bid.listing._count?.bids || 1 },
-            seller: bid.listing.seller || { name: "Unknown Seller" },
+            seller: { name: sellerName },
           });
           bidsContainer.appendChild(card);
         });
@@ -230,7 +242,7 @@ export async function initProfile() {
     }
 
     if (activeBids.length > 0) {
-      displayBids();
+      displayBids(); // Call displayBids here
       loadMoreBids.addEventListener("click", displayBids);
     } else {
       bidsContainer.innerHTML = '<p class="text-gray-500">No active bids</p>';
@@ -242,6 +254,7 @@ export async function initProfile() {
     const loadMoreWins = document.getElementById("load-more-wins");
 
     const { data: wins } = await getProfileWins(username);
+
     const sortedWins =
       wins?.sort((a, b) => new Date(b.created) - new Date(a.created)) || [];
 
@@ -304,7 +317,6 @@ export async function initProfile() {
 
         try {
           await updateProfile(username, updateData);
-
           const successMessage = document.createElement("div");
           successMessage.className =
             "fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-transform duration-500 ease-in-out";
