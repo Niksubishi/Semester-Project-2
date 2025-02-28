@@ -40,7 +40,7 @@ function createProfileHTML(profile) {
                             }</p>
                         </div>
                         <button id="edit-profile" 
-                                class="bg-[#E0AFA0] text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-colors">
+                                class="bg-[#E0AFA0] text-brand-text px-6 py-3 rounded-lg hover:bg-opacity-90 transition-colors">
                             Edit Profile
                         </button>
                     </div>
@@ -51,7 +51,7 @@ function createProfileHTML(profile) {
         <h2 class="text-xl text-center mb-3">My Listings</h2>
         <div class="bg-[#F4F3EE] rounded-lg p-4 mb-6">
             <div class="flex justify-center gap-4 mb-4">
-                <button id="active-listings-tab" class="px-6 py-2 bg-[#E0AFA0] text-white rounded-lg">Active</button>
+                <button id="active-listings-tab" class="px-6 py-2 bg-[#E0AFA0] text-brand-text rounded-lg">Active</button>
                 <button id="expired-listings-tab" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg">Expired</button>
             </div>
             <div id="listings-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 justify-items-center"></div>
@@ -81,7 +81,7 @@ function createProfileHTML(profile) {
                 <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-text"></div>
             </div>
             <div class="flex justify-center">
-                <button id="load-more-wins" class="hidden mt-4 px-6 py-2 bg-[#E0AFA0] text-white rounded-lg hover:bg-opacity-90 transition-colors">Load More</button>
+                <button id="load-more-wins" class="hidden mt-4 px-6 py-2 bg-[#E0AFA0] text-brand-text rounded-lg hover:bg-opacity-90 transition-colors">Load More</button>
             </div>
         </div>
     `;
@@ -127,11 +127,11 @@ export async function initProfile() {
       currentListings = isActive ? activeListings : expiredListings;
 
       activeTab.className = isActive
-        ? "px-6 py-2 bg-[#E0AFA0] text-white rounded-lg"
+        ? "px-6 py-2 bg-[#E0AFA0] text-brand-text rounded-lg"
         : "px-6 py-2 bg-gray-300 text-gray-700 rounded-lg";
 
       expiredTab.className = !isActive
-        ? "px-6 py-2 bg-[#E0AFA0] text-white rounded-lg"
+        ? "px-6 py-2 bg-[#E0AFA0] text-brand-text rounded-lg"
         : "px-6 py-2 bg-gray-300 text-gray-700 rounded-lg";
 
       if (currentListings.length > 0) {
@@ -242,7 +242,7 @@ export async function initProfile() {
     }
 
     if (activeBids.length > 0) {
-      displayBids(); // Call displayBids here
+      displayBids();
       loadMoreBids.addEventListener("click", displayBids);
     } else {
       bidsContainer.innerHTML = '<p class="text-gray-500">No active bids</p>';
