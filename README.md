@@ -14,7 +14,7 @@
 This project is an online auction platform where users can bid on various items, from electronics to collectibles. The website allows users to create listings, place bids, and manage their auction history. This project is developed using Vite, Tailwind CSS, and JavaScript, and emphasizes a seamless and intuitive user experience.
 The project was developed by [**Nikolas Bishop**](https://github.com/Niksubishi).
 
-[Link to live site](https://js2-ca-rikkejuliane.netlify.app/)
+[Link to live site](https://yobid.netlify.app/)
 
 ---
 
