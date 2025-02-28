@@ -2,13 +2,19 @@ import { createListing } from "../../api/listings/create.js";
 
 export async function initCreate() {
   const form = document.getElementById("create-listing-form");
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    redirectToLogin();
+    return;
+  }
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("You need to be logged in to create a listing.");
+    const currentToken = localStorage.getItem("token");
+    if (!currentToken) {
+      redirectToLogin();
       return;
     }
 
@@ -30,7 +36,7 @@ export async function initCreate() {
     };
 
     try {
-      await createListing(formData, token);
+      await createListing(formData, currentToken);
       showSuccessMessage();
       setTimeout(() => {
         window.location.href = "/";
@@ -41,13 +47,17 @@ export async function initCreate() {
   });
 }
 
+function redirectToLogin() {
+  const returnUrl = encodeURIComponent(window.location.href);
+  window.location.href = `/src/pages/login/?returnTo=${returnUrl}`;
+}
+
 function showSuccessMessage() {
   const message = document.createElement("div");
   message.className =
     "fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg";
   message.textContent = "Listing created successfully!";
   document.body.appendChild(message);
-
   setTimeout(() => {
     message.remove();
   }, 2000);
