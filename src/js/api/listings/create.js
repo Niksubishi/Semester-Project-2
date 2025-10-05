@@ -16,7 +16,7 @@ export async function createListing(formData, token) {
 
     return response.json();
   } catch (error) {
-    console.error("Error creating listing:", error);
+    Logger.apiError("Error creating listing:", error);
     throw error;
   }
 }

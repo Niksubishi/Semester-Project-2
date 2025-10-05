@@ -3,11 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="src/assets/images/logo.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
       content="YoBid is an online auction platform where you can bid on various items, from electronics to collectibles. Join the bidding excitement today!"
     />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://v2.api.noroff.dev; font-src 'self';"
+    />
+    <meta name="theme-color" content="#F4F3EE" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="YoBid" />
 
     <title>YoBid - Online Auction House</title>
     <script type="module" src="src/js/main.js"></script>
@@ -28,42 +38,51 @@
     </style>
   </head>
   <body class="bg-brand-body">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-brand-nav text-brand-text px-4 py-2 rounded">Skip to main content</a>
     <div id="app">
-      <nav
-        class="bg-brand-nav h-auto md:h-[73px] shadow-md flex items-center py-4 md:py-0"
-      >
-        <div class="max-w-7xl mx-auto px-8 w-full">
-          <div
-            class="flex flex-col md:flex-row justify-between items-center w-full gap-4 md:gap-0"
-          >
-            <div class="w-full flex justify-between items-center md:w-auto">
-              <a href="/" class="flex items-center justify-center -ml-4">
-                <img
-                  src="src/assets/images/logo.png"
-                  alt="YoBid Logo"
-                  class="h-12 md:h-14"
-                />
-              </a>
-
-              <button
-                id="menuToggle"
-                class="md:hidden text-brand-text focus:outline-none"
-              >
-                <svg
-                  class="w-8 h-8"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M4 6h16M4 12h16m-7 6h7"
+      <header>
+        <nav
+          class="bg-brand-nav h-auto md:h-[73px] shadow-md flex items-center py-4 md:py-0"
+          role="navigation"
+          aria-label="Main navigation"
+        >
+          <div class="max-w-7xl mx-auto px-8 w-full">
+            <div
+              class="flex flex-col md:flex-row justify-between items-center w-full gap-4 md:gap-0"
+            >
+              <div class="w-full flex justify-between items-center md:w-auto">
+                <a href="/" class="flex items-center justify-center -ml-4" aria-label="YoBid Home">
+                  <img
+                    src="src/assets/images/logo.png"
+                    alt="YoBid Logo"
+                    class="h-12 md:h-14"
+                    loading="lazy"
                   />
-                </svg>
-              </button>
-            </div>
+                </a>
+
+                <button
+                  id="menuToggle"
+                  class="md:hidden text-brand-text focus:outline-none focus:ring-2 focus:ring-brand-text focus:ring-offset-2 rounded"
+                  aria-label="Toggle navigation menu"
+                  aria-expanded="false"
+                  aria-controls="navMenu"
+                >
+                  <svg
+                    class="w-8 h-8"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M4 6h16M4 12h16m-7 6h7"
+                    />
+                  </svg>
+                </button>
+              </div>
 
             <div
               id="navMenu"
@@ -72,45 +91,26 @@
               <div
                 data-auth="logged-out"
                 class="flex flex-col md:flex-row items-center gap-4 md:gap-6"
+                role="menubar"
               >
-                <a href="/" class="text-brand-text hover:text-opacity-80"
-                  >Home</a
-                >
-                <a
-                  href="src/pages/login/"
-                  class="text-brand-text hover:text-opacity-80"
-                  >Login</a
-                >
-                <a
-                  href="src/pages/register/"
-                  class="text-brand-text hover:text-opacity-80"
-                  >Register</a
-                >
+                <a href="/" class="text-brand-text hover:text-opacity-80 focus:ring-2 focus:ring-brand-text focus:ring-offset-2 rounded px-2 py-1" role="menuitem">Home</a>
+                <a href="/src/pages/login/" class="text-brand-text hover:text-opacity-80 focus:ring-2 focus:ring-brand-text focus:ring-offset-2 rounded px-2 py-1" role="menuitem">Login</a>
+                <a href="/src/pages/register/" class="text-brand-text hover:text-opacity-80 focus:ring-2 focus:ring-brand-text focus:ring-offset-2 rounded px-2 py-1" role="menuitem">Register</a>
               </div>
 
               <div
                 data-auth="logged-in"
                 class="hidden flex flex-col md:flex-row items-center gap-4 md:gap-6"
+                role="menubar"
               >
-                <a href="/" class="text-brand-text hover:text-opacity-80"
-                  >Home</a
-                >
-                <a
-                  href="src/pages/create/"
-                  class="text-brand-text hover:text-opacity-80 font-bold"
-                  >Sell</a
-                >
-                <a
-                  href="src/pages/profile/"
-                  class="text-brand-text hover:text-opacity-80"
-                  >Profile</a
-                >
-                <span class="text-brand-text"
-                  >Credits: <span data-credits>0</span></span
-                >
+                <a href="/" class="text-brand-text hover:text-opacity-80 focus:ring-2 focus:ring-brand-text focus:ring-offset-2 rounded px-2 py-1" role="menuitem">Home</a>
+                <a href="/src/pages/create/" class="text-brand-text hover:text-opacity-80 font-bold focus:ring-2 focus:ring-brand-text focus:ring-offset-2 rounded px-2 py-1" role="menuitem">Sell</a>
+                <a href="/src/pages/profile/" class="text-brand-text hover:text-opacity-80 focus:ring-2 focus:ring-brand-text focus:ring-offset-2 rounded px-2 py-1" role="menuitem">Profile</a>
+                <span class="text-brand-text" aria-label="Available credits">Credits: <span data-credits aria-live="polite">0</span></span>
                 <button
-                  class="text-brand-text hover:text-opacity-80"
+                  class="text-brand-text hover:text-opacity-80 focus:ring-2 focus:ring-brand-text focus:ring-offset-2 rounded px-2 py-1"
                   data-logout
+                  aria-label="Logout from account"
                 >
                   Logout
                 </button>
@@ -119,16 +119,18 @@
           </div>
         </div>
       </nav>
+      </header>
 
-      <main class="flex-grow">
+      <main class="flex-grow" id="main-content">
         <section
           data-auth="logged-out"
           class="bg-[#D9D9D9] min-h-[350px] w-full flex items-center py-8 md:py-0"
+          aria-labelledby="hero-heading"
         >
           <div class="max-w-7xl mx-auto px-8">
             <div class="flex flex-col md:flex-row items-center gap-8 md:gap-0">
               <div class="w-full md:w-[70%] md:pr-8">
-                <h1 class="text-3xl md:text-4xl text-brand-text mb-4">
+                <h1 id="hero-heading" class="text-3xl md:text-4xl text-brand-text mb-4">
                   Welcome to YoBid
                 </h1>
                 <p class="text-brand-text text-base md:text-lg">
@@ -140,7 +142,7 @@
                   set, bid!
                   <a
                     href="src/pages/register/"
-                    class="font-bold hover:text-opacity-80"
+                    class="font-bold hover:text-opacity-80 focus:ring-2 focus:ring-brand-text focus:ring-offset-2 rounded"
                     >Sign up now.</a
                   >
                 </p>
@@ -149,8 +151,11 @@
               <div class="w-full md:w-[30%] flex justify-center">
                 <img
                   src="src/assets/images/auctionpic.png"
-                  alt="Auction"
+                  alt="People bidding at an auction event"
                   class="rounded-2xl max-h-[300px] object-cover"
+                  loading="lazy"
+                  width="300"
+                  height="300"
                 />
               </div>
             </div>
@@ -160,9 +165,10 @@
         <section
           data-auth="logged-in"
           class="hidden bg-[#D9D9D9] h-[200px] w-full flex items-center justify-center"
+          aria-labelledby="welcome-heading"
         >
           <div class="text-center px-4">
-            <h1 class="text-2xl md:text-3xl">
+            <h1 id="welcome-heading" class="text-2xl md:text-3xl">
               <span class="text-[#463F3A]">Welcome back, </span>
               <span class="text-[#00AEC7]" id="welcomeUsername"></span>
               <span class="text-[#463F3A]">!</span>
@@ -170,22 +176,29 @@
           </div>
         </section>
 
-        <section class="w-full py-8 bg-brand-body">
+        <section class="w-full py-8 bg-brand-body" aria-labelledby="search-heading">
           <div class="max-w-7xl mx-auto px-8 mt-8">
-            <h2 class="text-sm text-center text-brand-text mb-2">SEARCH</h2>
+            <h2 id="search-heading" class="text-sm text-center text-brand-text mb-2">SEARCH</h2>
             <div class="flex justify-center mb-4">
+              <label for="search-input" class="sr-only">Search listings</label>
               <input
+                id="search-input"
                 type="search"
                 placeholder="Search listings..."
-                class="w-full max-w-xl px-4 py-2 rounded-2xl focus:outline-none focus:border-brand-text"
+                class="w-full max-w-xl px-4 py-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-text focus:ring-offset-2 border border-gray-300"
                 data-search-input
+                aria-describedby="search-description"
               />
             </div>
+            <p id="search-description" class="sr-only">Enter keywords to search through auction listings</p>
 
             <div class="flex justify-center">
+              <label for="sort-select" class="sr-only">Sort listings by</label>
               <select
-                class="px-4 py-2 rounded-lg focus:outline-none focus:border-brand-text"
+                id="sort-select"
+                class="px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-text focus:ring-offset-2 border border-gray-300"
                 data-sort-select
+                aria-label="Sort listings"
               >
                 <option value="newest">Newest Listed</option>
                 <option value="oldest">Oldest Listed</option>
@@ -199,35 +212,39 @@
         <div
           class="flex justify-center items-center my-8 hidden"
           id="listingsLoader"
+          aria-label="Loading listings"
+          role="status"
         >
           <div
             class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-text"
+            aria-hidden="true"
           ></div>
+          <span class="sr-only">Loading listings...</span>
         </div>
 
-        <section class="w-full py-8 bg-brand-body">
-          <div class="max-w-6xl mx-auto px-8">
+        <section class="w-full py-8 bg-brand-body" aria-labelledby="listings-heading">
+          <div class="max-w-7xl mx-auto px-8">
+            <h2 id="listings-heading" class="sr-only">Auction Listings</h2>
             <div
-              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center"
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center"
               data-listings-grid
+              role="region"
+              aria-label="Auction listings grid"
+              aria-live="polite"
             ></div>
 
-            <div class="flex justify-center mt-8">
-              <button
-                class="px-6 py-2 bg-brand-nav text-brand-text rounded-lg hover:opacity-90"
-                data-load-more
-              >
-                More
-              </button>
-            </div>
+            <!-- Pagination Container -->
+            <div data-pagination aria-label="Pagination navigation"></div>
+
           </div>
         </section>
       </main>
 
       <footer
         class="bg-brand-nav h-16 flex items-center justify-center text-brand-text text-center"
+        role="contentinfo"
       >
-        ©2025 YoBid Auction House. Developed by Nik Bishop.
+        <p>©2025 YoBid Auction House. Developed by Nik Bishop.</p>
       </footer>
     </div>
   </body>

@@ -6,6 +6,8 @@ import { deleteListing } from "../../api/listings/delete.js";
 import { calculateTimeLeft } from "../../ui/components/cards.js";
 import { createEditModal } from "../../ui/components/editModal.js";
 import { createCarousel, setupCarousel } from "../../ui/components/carousel.js";
+import { loading } from "../../utils/loadingState.js";
+import Logger from "../../utils/logger.js";
 
 function createListingHTML(listing) {
   const currentUser = localStorage.getItem("username");
@@ -116,26 +118,43 @@ export async function initListing() {
   }
 
   try {
-    loader.classList.remove("hidden");
-    const response = await fetch(
-      `${API_LISTINGS.SINGLE(id)}?_seller=true&_bids=true`,
-      {
-        headers: headers(),
-      }
+    const mainContent = document.querySelector("main");
+
+    // Show skeleton loading
+    loading.skeleton(mainContent, 1);
+
+    const { data } = await loading.withLoading(
+      'load-listing',
+      async () => {
+        const response = await fetch(
+          `${API_LISTINGS.SINGLE(id)}?_seller=true&_bids=true`,
+          {
+            headers: headers(),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch listing data");
+        }
+
+        return response.json();
+      },
+      null,
+      'Loading listing...'
     );
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch listing data");
-    }
-
-    const { data } = await response.json();
     listingData = data;
-    const mainContent = document.querySelector("main");
     mainContent.innerHTML = createListingHTML(listingData);
   } catch (error) {
-    console.error("Error loading listing:", error);
-    document.querySelector("main").innerHTML =
-      "<p class='text-red-500 text-center'>Failed to load listing.</p>";
+    Logger.apiError("Error loading listing:", error);
+    document.querySelector("main").innerHTML = `<div class="text-center py-12">
+      <div class="text-red-400 text-6xl mb-4">⚠️</div>
+      <p class="text-lg text-red-600 mb-2">Unable to load listing</p>
+      <p class="text-sm text-gray-600 mb-4">Please check your connection and try again</p>
+      <button onclick="location.reload()" class="px-4 py-2 bg-brand-nav text-brand-text rounded-lg hover:opacity-90">
+        Retry
+      </button>
+    </div>`;
   } finally {
     loader.classList.add("hidden");
   }
@@ -206,12 +225,19 @@ export async function initListing() {
         };
 
         try {
-          await updateListing(id, updateData);
+          await loading.withLoading(
+            'update-listing',
+            () => updateListing(id, updateData),
+            form,
+            'Updating listing...'
+          );
+
           showSuccessMessage("Listing updated successfully!");
           setTimeout(() => {
             window.location.reload();
           }, 2000);
         } catch (error) {
+          Logger.apiError("updating listing", error);
           alert(error.message);
         }
       });
@@ -222,12 +248,19 @@ export async function initListing() {
     deleteButton.addEventListener("click", async () => {
       if (confirm("Are you sure you want to delete this listing?")) {
         try {
-          await deleteListing(id);
+          await loading.withLoading(
+            'delete-listing',
+            () => deleteListing(id),
+            deleteButton,
+            'Deleting listing...'
+          );
+
           showSuccessMessage("Listing deleted successfully!");
           setTimeout(() => {
             window.location.href = "/";
           }, 2000);
         } catch (error) {
+          Logger.apiError("deleting listing", error);
           alert(error.message);
         }
       }

@@ -7,6 +7,8 @@ import {
 import { updateProfile } from "../../api/profiles/update.js";
 import { createEditProfileModal } from "../../ui/components/editProfileModal.js";
 import { createListingCard } from "../../ui/components/cards.js";
+import { loading } from "../../utils/loadingState.js";
+import Logger from "../../utils/logger.js";
 
 const ITEMS_PER_PAGE = 3;
 
@@ -101,8 +103,18 @@ export async function initProfile() {
   };
 
   try {
-    const { data: profile } = await getProfile(username);
     const mainContent = document.querySelector("main");
+
+    // Show skeleton loading for profile
+    loading.skeleton(mainContent, 1);
+
+    const { data: profile } = await loading.withLoading(
+      'load-profile',
+      () => getProfile(username),
+      null,
+      'Loading profile...'
+    );
+
     mainContent.innerHTML = createProfileHTML(profile);
 
     const listingsLoader = document.getElementById("listings-loader");
@@ -147,34 +159,59 @@ export async function initProfile() {
     activeTab.addEventListener("click", () => switchTab(true));
     expiredTab.addEventListener("click", () => switchTab(false));
 
-    function displayListings() {
-      listingsLoader.classList.remove("hidden");
-      loadMoreListings.classList.add("hidden");
+    async function displayListings() {
+      try {
+        loadMoreListings.classList.add("hidden");
 
-      const start = currentPage.listings * ITEMS_PER_PAGE;
-      const end = start + ITEMS_PER_PAGE;
-      const pageListings = currentListings.slice(start, end);
+        const start = currentPage.listings * ITEMS_PER_PAGE;
+        const end = start + ITEMS_PER_PAGE;
+        const pageListings = currentListings.slice(start, end);
 
-      setTimeout(() => {
-        pageListings.forEach((listing) => {
-          const card = createListingCard({
-            ...listing,
-            seller: { name: profile.name },
-            _count: {
-              bids: listing.bids?.length || 0,
-            },
-            bids: listing.bids || [],
-          });
-          listingsContainer.appendChild(card);
-        });
-
-        currentPage.listings++;
-        listingsLoader.classList.add("hidden");
-
-        if (end < currentListings.length) {
-          loadMoreListings.classList.remove("hidden");
+        // Show skeleton for listings
+        if (currentPage.listings === 0) {
+          loading.skeleton(listingsContainer, ITEMS_PER_PAGE);
         }
-      }, 500);
+
+        await loading.withLoading(
+          `load-listings-page-${currentPage.listings}`,
+          async () => {
+            await new Promise(resolve => setTimeout(resolve, 300)); // Simulate network delay
+
+            if (currentPage.listings === 0) {
+              listingsContainer.innerHTML = '';
+            }
+
+            pageListings.forEach((listing) => {
+              const card = createListingCard({
+                ...listing,
+                seller: { name: profile.name },
+                _count: {
+                  bids: listing.bids?.length || 0,
+                },
+                bids: listing.bids || [],
+              });
+              listingsContainer.appendChild(card);
+            });
+
+            currentPage.listings++;
+
+            if (end < currentListings.length) {
+              loadMoreListings.classList.remove("hidden");
+            }
+          },
+          null,
+          'Loading listings...'
+        );
+      } catch (error) {
+        Logger.apiError("displaying listings", error);
+        listingsContainer.innerHTML = `<div class="col-span-full text-center py-8">
+          <div class="text-red-400 text-4xl mb-2">⚠️</div>
+          <p class="text-red-600 mb-2">Unable to load listings</p>
+          <button onclick="location.reload()" class="px-4 py-2 bg-brand-nav text-brand-text rounded-lg hover:opacity-90">
+            Retry
+          </button>
+        </div>`;
+      }
     }
 
     if (activeListings.length > 0) {
@@ -191,7 +228,16 @@ export async function initProfile() {
     const bidsContainer = document.getElementById("bids-container");
     const loadMoreBids = document.getElementById("load-more-bids");
 
-    const { data: bids } = await getProfileBids(username);
+    // Show skeleton loading for bids
+    loading.skeleton(bidsContainer, ITEMS_PER_PAGE);
+
+    const { data: bids } = await loading.withLoading(
+      'load-profile-bids',
+      () => getProfileBids(username),
+      null,
+      'Loading bids...'
+    );
+
     const activeBids =
       bids
         ?.filter((bid) => new Date(bid.listing.endsAt) > new Date())
@@ -200,45 +246,68 @@ export async function initProfile() {
         ) || [];
 
     async function displayBids() {
-      bidsLoader.classList.remove("hidden");
-      loadMoreBids.classList.add("hidden");
+      try {
+        loadMoreBids.classList.add("hidden");
 
-      const start = currentPage.bids * ITEMS_PER_PAGE;
-      const end = start + ITEMS_PER_PAGE;
-      const pageBids = activeBids.slice(start, end);
+        const start = currentPage.bids * ITEMS_PER_PAGE;
+        const end = start + ITEMS_PER_PAGE;
+        const pageBids = activeBids.slice(start, end);
 
-      const listingPromises = pageBids.map(async (bid) => {
-        try {
-          const { data: listing } = await getListing(bid.listing.id);
-          return { ...bid, listing };
-        } catch (error) {
-          console.error("Error fetching listing:", error);
-          return { ...bid, listing: { seller: { name: "Unknown Seller" } } };
+        // Show skeleton for first page load
+        if (currentPage.bids === 0) {
+          loading.skeleton(bidsContainer, ITEMS_PER_PAGE);
         }
-      });
 
-      const bidsWithListings = await Promise.all(listingPromises);
+        await loading.withLoading(
+          `load-bids-page-${currentPage.bids}`,
+          async () => {
+            const listingPromises = pageBids.map(async (bid) => {
+              try {
+                const { data: listing } = await getListing(bid.listing.id);
+                return { ...bid, listing };
+              } catch (error) {
+                Logger.apiError("fetching listing", error);
+                return { ...bid, listing: { seller: { name: "Unknown Seller" } } };
+              }
+            });
 
-      setTimeout(() => {
-        bidsWithListings.forEach((bid) => {
-          const sellerName = bid.listing.seller?.name || "Unknown Seller";
+            const bidsWithListings = await Promise.all(listingPromises);
 
-          const card = createListingCard({
-            ...bid.listing,
-            bids: [{ amount: bid.amount }],
-            _count: { bids: bid.listing._count?.bids || 1 },
-            seller: { name: sellerName },
-          });
-          bidsContainer.appendChild(card);
-        });
+            if (currentPage.bids === 0) {
+              bidsContainer.innerHTML = '';
+            }
 
-        currentPage.bids++;
-        bidsLoader.classList.add("hidden");
+            bidsWithListings.forEach((bid) => {
+              const sellerName = bid.listing.seller?.name || "Unknown Seller";
 
-        if (end < activeBids.length) {
-          loadMoreBids.classList.remove("hidden");
-        }
-      }, 500);
+              const card = createListingCard({
+                ...bid.listing,
+                bids: [{ amount: bid.amount }],
+                _count: { bids: bid.listing._count?.bids || 1 },
+                seller: { name: sellerName },
+              });
+              bidsContainer.appendChild(card);
+            });
+
+            currentPage.bids++;
+
+            if (end < activeBids.length) {
+              loadMoreBids.classList.remove("hidden");
+            }
+          },
+          null,
+          'Loading bids...'
+        );
+      } catch (error) {
+        Logger.apiError("displaying bids", error);
+        bidsContainer.innerHTML = `<div class="col-span-full text-center py-8">
+          <div class="text-red-400 text-4xl mb-2">⚠️</div>
+          <p class="text-red-600 mb-2">Unable to load bids</p>
+          <button onclick="location.reload()" class="px-4 py-2 bg-brand-nav text-brand-text rounded-lg hover:opacity-90">
+            Retry
+          </button>
+        </div>`;
+      }
     }
 
     if (activeBids.length > 0) {
@@ -253,35 +322,68 @@ export async function initProfile() {
     const winsContainer = document.getElementById("wins-container");
     const loadMoreWins = document.getElementById("load-more-wins");
 
-    const { data: wins } = await getProfileWins(username);
+    // Show skeleton loading for wins
+    loading.skeleton(winsContainer, ITEMS_PER_PAGE);
+
+    const { data: wins } = await loading.withLoading(
+      'load-profile-wins',
+      () => getProfileWins(username),
+      null,
+      'Loading wins...'
+    );
 
     const sortedWins =
       wins?.sort((a, b) => new Date(b.created) - new Date(a.created)) || [];
 
-    function displayWins() {
-      winsLoader.classList.remove("hidden");
-      loadMoreWins.classList.add("hidden");
+    async function displayWins() {
+      try {
+        loadMoreWins.classList.add("hidden");
 
-      const start = currentPage.wins * ITEMS_PER_PAGE;
-      const end = start + ITEMS_PER_PAGE;
-      const pageWins = sortedWins.slice(start, end);
+        const start = currentPage.wins * ITEMS_PER_PAGE;
+        const end = start + ITEMS_PER_PAGE;
+        const pageWins = sortedWins.slice(start, end);
 
-      setTimeout(() => {
-        pageWins.forEach((win) => {
-          const card = createListingCard({
-            ...win,
-            seller: { name: win.seller?.name || "Unknown Seller" },
-          });
-          winsContainer.appendChild(card);
-        });
-
-        currentPage.wins++;
-        winsLoader.classList.add("hidden");
-
-        if (end < sortedWins.length) {
-          loadMoreWins.classList.remove("hidden");
+        // Show skeleton for first page load
+        if (currentPage.wins === 0) {
+          loading.skeleton(winsContainer, ITEMS_PER_PAGE);
         }
-      }, 500);
+
+        await loading.withLoading(
+          `load-wins-page-${currentPage.wins}`,
+          async () => {
+            await new Promise(resolve => setTimeout(resolve, 300)); // Simulate network delay
+
+            if (currentPage.wins === 0) {
+              winsContainer.innerHTML = '';
+            }
+
+            pageWins.forEach((win) => {
+              const card = createListingCard({
+                ...win,
+                seller: { name: win.seller?.name || "Unknown Seller" },
+              });
+              winsContainer.appendChild(card);
+            });
+
+            currentPage.wins++;
+
+            if (end < sortedWins.length) {
+              loadMoreWins.classList.remove("hidden");
+            }
+          },
+          null,
+          'Loading wins...'
+        );
+      } catch (error) {
+        Logger.apiError("displaying wins", error);
+        winsContainer.innerHTML = `<div class="col-span-full text-center py-8">
+          <div class="text-red-400 text-4xl mb-2">⚠️</div>
+          <p class="text-red-600 mb-2">Unable to load wins</p>
+          <button onclick="location.reload()" class="px-4 py-2 bg-brand-nav text-brand-text rounded-lg hover:opacity-90">
+            Retry
+          </button>
+        </div>`;
+      }
     }
 
     if (sortedWins.length > 0) {
@@ -316,7 +418,13 @@ export async function initProfile() {
         };
 
         try {
-          await updateProfile(username, updateData);
+          await loading.withLoading(
+            'update-profile',
+            () => updateProfile(username, updateData),
+            form,
+            'Updating profile...'
+          );
+
           const successMessage = document.createElement("div");
           successMessage.className =
             "fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-transform duration-500 ease-in-out";
@@ -330,6 +438,7 @@ export async function initProfile() {
 
           modal.remove();
         } catch (error) {
+          Logger.apiError("updating profile", error);
           const errorMessage = document.createElement("div");
           errorMessage.className =
             "fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg";
@@ -342,6 +451,17 @@ export async function initProfile() {
       });
     });
   } catch (error) {
-    console.error("Error loading profile:", error);
+    Logger.apiError("loading profile", error);
+
+    // Show user-friendly error message
+    const mainContent = document.querySelector("main");
+    mainContent.innerHTML = `<div class="text-center py-12">
+      <div class="text-red-400 text-6xl mb-4">⚠️</div>
+      <p class="text-lg text-red-600 mb-2">Unable to load profile</p>
+      <p class="text-sm text-gray-600 mb-4">Please check your connection and try again</p>
+      <button onclick="location.reload()" class="px-4 py-2 bg-brand-nav text-brand-text rounded-lg hover:opacity-90">
+        Retry
+      </button>
+    </div>`;
   }
 }

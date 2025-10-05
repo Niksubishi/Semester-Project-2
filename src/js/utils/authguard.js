@@ -9,9 +9,9 @@ export function setWelcomeUsername() {
 export function updateAuthState() {
   const token = localStorage.getItem("token");
   const loggedOutElements = document.querySelectorAll(
-    '[data-auth="logged-out"]'
+    "[data-auth=\"logged-out\"]",
   );
-  const loggedInElements = document.querySelectorAll('[data-auth="logged-in"]');
+  const loggedInElements = document.querySelectorAll("[data-auth=\"logged-in\"]");
 
   if (token) {
     loggedOutElements.forEach((element) => element.classList.add("hidden"));

@@ -6,14 +6,28 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint src/js/**/*.js",
+    "lint:fix": "eslint src/js/**/*.js --fix",
+    "format": "prettier --write src/js/**/*.js",
+    "format:check": "prettier --check src/js/**/*.js",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
   },
   "devDependencies": {
+    "@eslint/js": "^9.37.0",
     "@tailwindcss/postcss": "^4.0.0",
+    "@vitest/coverage-v8": "^1.1.0",
+    "@vitest/ui": "^1.1.0",
     "autoprefixer": "^10.4.20",
+    "eslint": "^8.56.0",
+    "jsdom": "^23.0.1",
     "postcss": "^8.5.1",
+    "prettier": "^3.1.1",
     "tailwindcss": "^3.4.17",
-    "vite": "^6.0.11"
+    "vite": "^6.0.11",
+    "vitest": "^1.1.0"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.0"

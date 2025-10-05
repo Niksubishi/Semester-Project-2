@@ -2,6 +2,8 @@ import { getProfile } from "../../api/profiles/read.js";
 import { API_PROFILES, API_FLAGS } from "../../constants/api.js";
 import { createListingCard } from "../../ui/components/cards.js";
 import { headers } from "../../constants/headers.js";
+import { loading } from "../../utils/loadingState.js";
+import Logger from "../../utils/logger.js";
 
 function createUserProfileHTML(profile) {
   return `
@@ -83,8 +85,18 @@ export async function initUser() {
   let allWins = [];
 
   try {
-    const { data: profile } = await getProfile(username);
     const mainContent = document.querySelector("main");
+
+    // Show skeleton loading
+    loading.skeleton(mainContent, 1);
+
+    const { data: profile } = await loading.withLoading(
+      'load-user-profile',
+      () => getProfile(username),
+      null,
+      'Loading profile...'
+    );
+
     mainContent.innerHTML = createUserProfileHTML(profile);
     const token = localStorage.getItem("token");
 
@@ -94,14 +106,24 @@ export async function initUser() {
     const activeTab = document.getElementById("active-listings-tab");
     const expiredTab = document.getElementById("expired-listings-tab");
 
-    listingsLoader.classList.remove("hidden");
-    const response = await fetch(
-      `${API_PROFILES.LISTINGS(username)}?${API_FLAGS.LISTINGS}`,
-      {
-        headers: headers(token),
-      }
+    // Show skeleton loading for listings
+    loading.skeleton(listingsContainer, 3);
+
+    const { data: listings } = await loading.withLoading(
+      'load-user-listings',
+      async () => {
+        const response = await fetch(
+          `${API_PROFILES.LISTINGS(username)}?${API_FLAGS.LISTINGS}`,
+          {
+            headers: headers(token),
+          }
+        );
+        return response.json();
+      },
+      null,
+      'Loading listings...'
     );
-    const { data: listings } = await response.json();
+
     allListings = listings || [];
 
     const activeListings = allListings.filter(
@@ -138,30 +160,55 @@ export async function initUser() {
     activeTab.addEventListener("click", () => switchTab(true));
     expiredTab.addEventListener("click", () => switchTab(false));
 
-    function displayListings() {
-      listingsLoader.classList.remove("hidden");
-      loadMoreListings.classList.add("hidden");
+    async function displayListings() {
+      try {
+        loadMoreListings.classList.add("hidden");
 
-      const start = currentListingsPage * itemsPerPage;
-      const end = start + itemsPerPage;
-      const pageListings = currentListings.slice(start, end);
+        const start = currentListingsPage * itemsPerPage;
+        const end = start + itemsPerPage;
+        const pageListings = currentListings.slice(start, end);
 
-      setTimeout(() => {
-        pageListings.forEach((listing) => {
-          const card = createListingCard({
-            ...listing,
-            seller: { name: profile.name },
-          });
-          listingsContainer.appendChild(card);
-        });
-
-        currentListingsPage++;
-        listingsLoader.classList.add("hidden");
-
-        if (end < currentListings.length) {
-          loadMoreListings.classList.remove("hidden");
+        // Show skeleton for first load
+        if (currentListingsPage === 0) {
+          loading.skeleton(listingsContainer, itemsPerPage);
         }
-      }, 500);
+
+        await loading.withLoading(
+          `display-user-listings-${currentListingsPage}`,
+          async () => {
+            await new Promise(resolve => setTimeout(resolve, 300));
+
+            if (currentListingsPage === 0) {
+              listingsContainer.innerHTML = '';
+            }
+
+            pageListings.forEach((listing) => {
+              const card = createListingCard({
+                ...listing,
+                seller: { name: profile.name },
+              });
+              listingsContainer.appendChild(card);
+            });
+
+            currentListingsPage++;
+
+            if (end < currentListings.length) {
+              loadMoreListings.classList.remove("hidden");
+            }
+          },
+          null,
+          'Loading more listings...'
+        );
+      } catch (error) {
+        Logger.apiError("displaying listings", error);
+        listingsContainer.innerHTML = `<div class="col-span-full text-center py-8">
+          <div class="text-red-400 text-4xl mb-2">⚠️</div>
+          <p class="text-red-600 mb-2">Unable to load listings</p>
+          <button onclick="location.reload()" class="px-4 py-2 bg-brand-nav text-brand-text rounded-lg hover:opacity-90">
+            Retry
+          </button>
+        </div>`;
+      }
     }
 
     if (activeListings.length > 0) {
@@ -177,43 +224,78 @@ export async function initUser() {
     const winsContainer = document.getElementById("wins-container");
     const loadMoreWins = document.getElementById("load-more-wins");
 
-    winsLoader.classList.remove("hidden");
-    const winsResponse = await fetch(
-      `${API_PROFILES.WINS(username)}?${API_FLAGS.WINS}`,
-      {
-        headers: headers(token),
-      }
+    // Show skeleton loading for wins
+    loading.skeleton(winsContainer, 3);
+
+    const { data: wins } = await loading.withLoading(
+      'load-user-wins',
+      async () => {
+        const winsResponse = await fetch(
+          `${API_PROFILES.WINS(username)}?${API_FLAGS.WINS}`,
+          {
+            headers: headers(token),
+          }
+        );
+        return winsResponse.json();
+      },
+      null,
+      'Loading wins...'
     );
-    const { data: wins } = await winsResponse.json();
+
     allWins = wins || [];
 
-    function displayWins() {
-      winsLoader.classList.remove("hidden");
-      loadMoreWins.classList.add("hidden");
+    async function displayWins() {
+      try {
+        loadMoreWins.classList.add("hidden");
 
-      const sortedWins = allWins.sort(
-        (a, b) => new Date(b.created) - new Date(a.created)
-      );
-      const start = currentWinsPage * itemsPerPage;
-      const end = start + itemsPerPage;
-      const pageWins = sortedWins.slice(start, end);
+        const sortedWins = allWins.sort(
+          (a, b) => new Date(b.created) - new Date(a.created)
+        );
+        const start = currentWinsPage * itemsPerPage;
+        const end = start + itemsPerPage;
+        const pageWins = sortedWins.slice(start, end);
 
-      setTimeout(() => {
-        pageWins.forEach((win) => {
-          const card = createListingCard({
-            ...win,
-            seller: { name: win.seller?.name || "Unknown Seller" },
-          });
-          winsContainer.appendChild(card);
-        });
-
-        currentWinsPage++;
-        winsLoader.classList.add("hidden");
-
-        if (end < allWins.length) {
-          loadMoreWins.classList.remove("hidden");
+        // Show skeleton for first load
+        if (currentWinsPage === 0) {
+          loading.skeleton(winsContainer, itemsPerPage);
         }
-      }, 500);
+
+        await loading.withLoading(
+          `display-user-wins-${currentWinsPage}`,
+          async () => {
+            await new Promise(resolve => setTimeout(resolve, 300));
+
+            if (currentWinsPage === 0) {
+              winsContainer.innerHTML = '';
+            }
+
+            pageWins.forEach((win) => {
+              const card = createListingCard({
+                ...win,
+                seller: { name: win.seller?.name || "Unknown Seller" },
+              });
+              winsContainer.appendChild(card);
+            });
+
+            currentWinsPage++;
+
+            if (end < allWins.length) {
+              loadMoreWins.classList.remove("hidden");
+            }
+          },
+          null,
+          'Loading more wins...'
+        );
+      } catch (error) {
+        Logger.apiError("displaying wins", error);
+        winsContainer.innerHTML = `<div class="col-span-full text-center py-8">
+          <div class="text-red-400 text-4xl mb-2">⚠️</div>
+          <p class="text-red-600 mb-2">Unable to load wins</p>
+          <button onclick="location.reload()" class="px-4 py-2 bg-brand-nav text-brand-text rounded-lg hover:opacity-90">
+            Retry
+          </button>
+        </div>`;
+      }
     }
 
     if (allWins.length > 0) {
@@ -224,6 +306,17 @@ export async function initUser() {
       winsContainer.innerHTML = '<p class="text-gray-500">No wins yet</p>';
     }
   } catch (error) {
-    console.error("Error loading user profile:", error);
+    Logger.apiError("Error loading user profile:", error);
+
+    // Show user-friendly error message
+    const mainContent = document.querySelector("main");
+    mainContent.innerHTML = `<div class="text-center py-12">
+      <div class="text-red-400 text-6xl mb-4">⚠️</div>
+      <p class="text-lg text-red-600 mb-2">Unable to load user profile</p>
+      <p class="text-sm text-gray-600 mb-4">Please check your connection and try again</p>
+      <button onclick="location.reload()" class="px-4 py-2 bg-brand-nav text-brand-text rounded-lg hover:opacity-90">
+        Retry
+      </button>
+    </div>`;
   }
 }

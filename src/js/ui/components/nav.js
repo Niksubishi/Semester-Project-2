@@ -1,31 +1,35 @@
 import { API_PROFILES } from "../../constants/api.js";
-import { headers } from "../../constants/headers.js";
+import { api } from "../../utils/apiClient.js";
+import Logger from "../../utils/logger.js";
 
 async function getCurrentCredits() {
   const username = localStorage.getItem("username");
   const token = localStorage.getItem("token");
 
   if (!username || !token) {
-    console.warn("Missing username or token in localStorage.");
+    Logger.warn("Missing username or token in localStorage.");
     return null;
   }
 
   try {
-    const response = await fetch(API_PROFILES.SINGLE(username), {
-      headers: headers(token),
+    const data = await api.authGet(API_PROFILES.SINGLE(username), {
+      cache: true,
+      cacheTime: 30 * 1000, // Cache credits for 30 seconds
+      timeout: 8000, // 8 second timeout
     });
 
-    if (!response.ok) {
-      console.error("Failed to fetch credits. Status:", response.status);
-      return null;
-    }
-
-    const { data } = await response.json();
-    localStorage.setItem("credits", data.credits);
+    const credits = data.data.credits;
+    localStorage.setItem("credits", credits);
     refreshCreditsDisplay();
-    return data.credits;
+    return credits;
   } catch (error) {
-    console.error("Error fetching credits:", error);
+    Logger.apiError("fetching credits", error);
+    // Show user-friendly message based on error type
+    if (error.status === 401) {
+      // Token expired, redirect to login
+      localStorage.clear();
+      window.location.href = "/src/pages/login/";
+    }
     return null;
   }
 }
@@ -53,10 +57,14 @@ export async function initNav() {
     });
   }
 
-  await getCurrentCredits();
+  // Only fetch credits if user is logged in and the credits element is visible
+  const token = localStorage.getItem("token");
+  const creditsElement = document.querySelector("[data-credits]");
+  if (token && creditsElement && !creditsElement.closest('[data-auth="logged-in"]')?.classList.contains('hidden')) {
+    await getCurrentCredits();
+  }
 
   const observer = new MutationObserver(refreshCreditsDisplay);
-  const creditsElement = document.querySelector("[data-credits]");
 
   if (creditsElement) {
     observer.observe(creditsElement, { childList: true, subtree: true });

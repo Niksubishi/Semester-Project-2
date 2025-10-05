@@ -1,10 +1,11 @@
 import { API_LISTINGS, API_FLAGS } from "../../constants/api.js";
+import { api } from "../../utils/apiClient.js";
 import { createListingCard } from "../components/cards.js";
+import { loading } from "../../utils/loadingState.js";
 
 export function initializeSearch() {
   const searchInput = document.querySelector("[data-search-input]");
   const listingsGrid = document.querySelector("[data-listings-grid]");
-  const loadMoreBtn = document.querySelector("[data-load-more]");
   const sortSelect = document.querySelector("[data-sort-select]");
 
   searchInput.addEventListener(
@@ -13,37 +14,90 @@ export function initializeSearch() {
       const searchTerm = event.target.value.trim();
 
       if (!searchTerm) {
+        // Clear search and reload normal listings
         listingsGrid.innerHTML = "";
-        loadMoreBtn.style.display = "block";
+        hidePagination();
         window.dispatchEvent(new CustomEvent("reloadListings"));
         return;
       }
 
-      const response = await fetch(
-        `${API_LISTINGS.SEARCH}?q=${searchTerm}&${API_FLAGS.SELLER}&${API_FLAGS.BIDS}`
-      );
-      const { data } = await response.json();
+      try {
+        // Show skeleton loading
+        loading.skeleton(listingsGrid, 6);
+        hidePagination();
 
-      const activeListings = data.filter(
-        (listing) => new Date(listing.endsAt) > new Date()
-      );
+        const data = await api.get(
+          `${API_LISTINGS.SEARCH}?q=${searchTerm}&${API_FLAGS.SELLER}&${API_FLAGS.BIDS}`,
+          { cache: true, cacheTime: 60 * 1000 } // Cache search for 1 minute
+        );
 
-      listingsGrid.innerHTML = "";
-      loadMoreBtn.style.display = "none";
+        const activeListings = data.data.filter(
+          (listing) => new Date(listing.endsAt) > new Date()
+        );
 
-      if (activeListings.length === 0) {
-        listingsGrid.innerHTML = `<p class="col-span-full text-center text-lg">No active listings found matching "${searchTerm}"</p>`;
-        return;
+        listingsGrid.innerHTML = "";
+
+        if (activeListings.length === 0) {
+          listingsGrid.innerHTML = `<div class="col-span-full text-center py-12">
+            <div class="text-gray-400 text-6xl mb-4">🔍</div>
+            <p class="text-lg text-gray-600">No active listings found</p>
+            <p class="text-sm text-gray-500 mt-2">Try searching for "${searchTerm}" with different keywords</p>
+          </div>`;
+          return;
+        }
+
+        const sortedListings = sortListings(activeListings, sortSelect.value);
+
+        // Add fade-in animation to search results
+        sortedListings.forEach((listing, index) => {
+          const card = createListingCard(listing);
+          card.style.opacity = '0';
+          card.style.transform = 'translateY(20px)';
+          listingsGrid.appendChild(card);
+
+          setTimeout(() => {
+            card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+          }, index * 50);
+        });
+
+        // Show search results info
+        showSearchInfo(searchTerm, activeListings.length);
+
+      } catch (error) {
+        listingsGrid.innerHTML = `<div class="col-span-full text-center py-12">
+          <div class="text-red-400 text-6xl mb-4">⚠️</div>
+          <p class="text-lg text-red-600 mb-2">Search failed</p>
+          <p class="text-sm text-gray-600">Please try again</p>
+        </div>`;
       }
-
-      const sortedListings = sortListings(activeListings, sortSelect.value);
-
-      sortedListings.forEach((listing) => {
-        const card = createListingCard(listing);
-        listingsGrid.appendChild(card);
-      });
     }, 300)
   );
+}
+
+function showSearchInfo(searchTerm, resultCount) {
+  const paginationContainer = document.querySelector("[data-pagination]");
+  if (paginationContainer) {
+    paginationContainer.innerHTML = `
+      <div class="text-center mt-6 p-4 bg-blue-50 rounded-lg">
+        <p class="text-sm text-blue-700">
+          Found <strong>${resultCount}</strong> result${resultCount !== 1 ? 's' : ''} for "<em>${searchTerm}</em>"
+        </p>
+        <button onclick="document.querySelector('[data-search-input]').value=''; document.querySelector('[data-search-input]').dispatchEvent(new Event('input'))"
+                class="mt-2 text-xs text-blue-600 hover:text-blue-800 underline">
+          Clear search
+        </button>
+      </div>
+    `;
+  }
+}
+
+function hidePagination() {
+  const paginationContainer = document.querySelector("[data-pagination]");
+  if (paginationContainer) {
+    paginationContainer.innerHTML = '';
+  }
 }
 
 function sortListings(listings, sortType) {
