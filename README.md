@@ -1,5 +1,6 @@
 # **YoBid (Online Auction House) - Nikolas Bishop**  
-<img width="1339" alt="Screenshot 2025-03-02 at 18 28 45" src="https://github.com/user-attachments/assets/72bffa2f-e8ae-4a3c-91e6-13bd88531ced" />
+<img width="1398" height="751" alt="Screenshot 2025-10-05 at 16 30 53" src="https://github.com/user-attachments/assets/bd67c5c9-028f-4454-ae62-22addc247848" />
+
 
 
 ### **Table of Contents 📚**
